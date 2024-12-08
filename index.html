@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <canvas id="canvas"></canvas>
-    <div id="controller">
-      <button id="ctrl-action" style="position: fixed; top: 60%; left: 3%; clip-path: none; border-radius: 4vh; width: 8vh; height: 8vh; color: #eee" class="ctrl-button">A</button>
-      <button id="ctrl-top" class="ctrl-button"><span class="ctrl-arrow">▲</span></button>
-      <button id="ctrl-right" class="ctrl-button"><span class="ctrl-arrow">▲</span>︎</button>
-      <button id="ctrl-btm" class="ctrl-button"><span class="ctrl-arrow">▲</span></button>
-      <button id="ctrl-left" class="ctrl-button"><span class="ctrl-arrow">▲</span>︎︎</button>
+<html>
+<head>
+  <title>Takaon</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header-color"></div>
+    <h1>Takaon</h1>
+  </div>
+  <div class="content">
+    <div class="project">
+      <h2>Takaon Web Maker</h2>
+      <p>静的なWebページの作成に役立つライトなツール
+        <br>JavaScriptも含めた実行環境
+        <br>Web上ですぐに利用可能
+      </p>
+      <button onclick="location.href='/webmaker'">Takaon Web Makerを起動する</button>
     </div>
-    
-    <script src="dangeon.js"></script>
-    <script src="maze.js"></script>
-    <script src="rpg.js"></script>
-    <script src="main.js"></script>
-  </body>
+  </div>
+  <script src="main.js"></script>
+</body>
 </html>
