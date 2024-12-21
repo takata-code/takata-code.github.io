@@ -2,7 +2,7 @@
 // Tab
 //======
 
-import CM from 'content_manager.js'
+import CM from './content_manager.js'
 
 const tabs = []
 const tab_headers = document.getElementById('tab_headers')

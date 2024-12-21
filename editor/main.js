@@ -2,10 +2,10 @@
 // Main
 //=======
 
-import P from 'project.js'
-import PIO from 'project_io.js'
+import P from './project.js'
+import PIO from './project_io.js'
 
-import Tab from 'tab.js'
+import Tab from './tab.js'
 
 let main_project = null
 let selected_file_or_directory = null

@@ -2,7 +2,7 @@
 // Project IO
 //=============
 
-import P from 'project.js'
+import P from './project.js'
 
 const module = {}
 
