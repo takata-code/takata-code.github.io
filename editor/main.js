@@ -4,138 +4,136 @@
 
 import P from './project.js'
 import PIO from './project_io.js'
-
 import Tab from './tab.js'
+import Explorer from './explorer.js'
+import DS from './dialog_system.js'
+import Animation from './animation.js'
+import G from './global.js'
 
-let main_project = null
-let selected_file_or_directory = null
+const reset_local_storage = false
+const contextmenu_enabled = true
 
-// #汎用的な操作
+if (reset_local_storage) {
+  localStorage.clear()
+}
 
-// ##読み込み関係
+if (!contextmenu_enabled) {
+  oncontextmenu = () => false
+}
+
 
 function load_project(project) {
-  function create_explorer() {
-    const explorer = document.getElementById('explorer')
-    
-    const rows = []
-    
-    function recursive_explorer_add_children(element, parent_dom) {
-      let row
-      let action
-      
-      if (element instanceof P.Directory) {
-        const folder = document.createElement('div')
-        
-        row = document.createElement('div')
-        row.style.width = '100%'
-        row.className = 'explorer-element-row'
-        
-        const icon = document.createElement('span')
-        icon.innerText = 'keyboard_arrow_rightfolder'
-        icon.className = 'explorer-element-icon'
-        row.appendChild(icon)
-        
-        const name_label = document.createElement('span')
-        name_label.innerText = element.name
-        name_label.className = 'explorer-element-name'
-        row.appendChild(name_label)
-        
-        folder.appendChild(row)
-        
-        const content = document.createElement('div')
-        content.style.marginLeft = '20px'
-        content.hidden = true
-        folder.appendChild(content)
-        
-        folder.open = false
-        folder.selected = false
-        
-        action = () => {
-          folder.open = !folder.open
-          content.hidden = !folder.open
-          icon.innerText = folder.open ? 'keyboard_arrow_downfolder_open' : 'keyboard_arrow_rightfolder'
-        }
-        
-        folder.className = 'explorer-element'
-        
-        parent_dom.append(folder)
-        
-        for (const child of element.children) {
-          recursive_explorer_add_children(child, content)
-        }
-      } else {
-        const file = document.createElement('div')
-        file.className = 'explorer-element'
-        
-        row = document.createElement('div')
-        row.className = 'explorer-element-row'
-        
-        const name_label = document.createElement('div')
-        name_label.innerText = element.name
-        name_label.className = 'explorer-element-name'
-        
-        row.appendChild(name_label)
-        file.appendChild(row)
-        parent_dom.appendChild(file)
-        
-        action = () => {
-          open_file(element)
-        }
-      }
-      
-      row.addEventListener('click', () => {
-        if (row.selected) {
-          action()
-        } else {
-          for (const r of rows) {
-            r.selected = false
-            r.className = 'explorer-element-row'
-          }
-          
-          row.selected = true
-          row.className = 'explorer-element-row-selected'
-          
-          selected_file_or_directory = element
-        }
-      })
-      rows.push(row)
-    }
-    recursive_explorer_add_children(project.root, explorer)
-  }
+  Tab.clear()
+  Explorer.create(project)
+  G.project = project
+}
+
+async function save_project_data_to_local_storage() {
+  const project_data = await PIO.Exporter.export_text(G.project)
+  const json = JSON.stringify({
+    project_name: G.project.name,
+    project_data
+  })
+  localStorage.setItem('project_' + G.project.info.id, json)
+  localStorage.setItem('project_last_id', G.project.info.id)
+}
+
+function create_temp_data() {
+  const tabs = Tabs.get_all_tabs()
+  const temp_tabs = tabs.map(elem => elem.target.path)
   
-  create_explorer()
-  main_project = project
+  return {
+    tabs: temp_tabs
+  }
 }
 
-function open_file(file) {
-  const tab = Tab.get_tab(file)
-  tab.open()
+function initialize_welcome_dialog() {
+  const dialog = document.getElementById('welcome_dialog')
+  const open_last = document.getElementById('welcome_dialog_open_last')
+  const make_new = document.getElementById('welcome_dialog_new')
+  const open_proj = document.getElementById('welcome_dialog_open')
+  
+  const menu_load_dialog = document.getElementById('menu_load_dialog')
+  
+  make_new.addEventListener('click', async () => {
+    load_project(new P.Project('Project'))
+    dialog.close()
+  })
+  
+  open_proj.addEventListener('click', async () => {
+    dialog.close()
+    menu_load_dialog.showModal()
+    menu_load_dialog.parent = 'welcome'
+    menu_load_dialog.last_project = G.project
+  })
+  
+  menu_load_dialog.addEventListener('close', () => {
+    if (menu_load_dialog.parent == 'welcome') {
+      if (menu_load_dialog.last_project == G.project) {
+        dialog.showModal()
+      }
+    }
+  })
 }
+initialize_welcome_dialog()
 
-// ##書き出し関係
-
+function update_welcome_dialog() {
+  const dialog = document.getElementById('welcome_dialog')
+  const open_last = document.getElementById('welcome_dialog_open_last')
+  const open_last_title = document.getElementById('welcome_dialog_open_last_title')
+  
+  const last_key = localStorage.getItem('project_last_id')
+  const project_json = localStorage.getItem('project_' + last_key)
+  
+  open_last.hidden = true
+  
+  if (project_json) {
+    const project_obj = JSON.parse(project_json)
+    const project_name = project_obj.project_name
+    
+    open_last_title.innerText = `プロジェクト ${ project_name } を続行`
+    const text = project_obj.project_data
+    open_last.hidden = false
+    
+    open_last.onclick = async () => {
+      load_project(await PIO.Importer.import_text(text))
+      dialog.close()
+    }
+  }
+}
 
 // explorer, footer の折りたたみ機能
 function initialize_explorer_and_footer_fold() {
   // expolrer の折りたたみ
   const explorer_fold = document.getElementById('explorer_fold')
-  const explorer_open_width = document.body.style.getPropertyValue('--explorer-width')
+  const explorer_open_width = Number(getComputedStyle(document.body).getPropertyValue('--explorer-width').replace('px', ''))
   explorer_fold.open = true
   
   explorer_fold.addEventListener('click', () => {
-    document.body.style.setProperty('--explorer-width', explorer_fold.open ? '0' : explorer_open_width)
     explorer_fold.open = !explorer_fold.open
+    const a = explorer_fold.open ? 0 : explorer_open_width
+    const b = explorer_fold.open ? explorer_open_width : 0
+    
+    Animation.direct(x => {
+      document.body.style.setProperty('--explorer-width', (a + (b - a) * x) + 'px')
+    }, 100)
   })
   
   // footer の折りたたみ
   const footer_fold = document.getElementById('footer_fold')
-  const footer_open_height = document.body.style.getPropertyValue('--footer-height')
+  const footer_max_height = Number(getComputedStyle(document.body).getPropertyValue('--footer-max-height').replace('px', ''))
+  const footer_min_height = Number(getComputedStyle(document.body).getPropertyValue('--footer-min-height').replace('px', ''))
   footer_fold.open = true
   
   footer_fold.addEventListener('click', () => {
-    document.body.style.setProperty('--footer-height', footer_fold.open ? '0' : footer_open_height)
     footer_fold.open = !footer_fold.open
+    
+    const a = footer_fold.open ? footer_min_height : footer_max_height
+    const b = footer_fold.open ? footer_max_height : footer_min_height
+    
+    Animation.direct(x => {
+      document.body.style.setProperty('--footer-height', (a + (b - a) * x) + 'px')
+    }, 100)
   })
   
 }
@@ -155,16 +153,29 @@ function initialize_menu_undo_redo() {
 }
 initialize_menu_undo_redo()
 
-function initialize_menu_save() {
+function initialize_menu_save_and_save_all() {
   const menu_save = document.getElementById('menu_save')
+  const menu_save_all = document.getElementById('menu_save_all')
   
   menu_save.addEventListener('click', () => {
+    const tab = Tab.get_active_tab()
+    
+    if (tab) {
+      tab.save()
+    }
+    
+    save_project_data_to_local_storage()
+  })
+  
+  menu_save_all.addEventListener('click', () => {
     for (const tab of Tab.get_all_tabs()) {
       tab.save()
     }
+    
+    save_project_data_to_local_storage()
   })
 }
-initialize_menu_save()
+initialize_menu_save_and_save_all()
 
 // menu_load の処理
 function initialize_menu_load() {
@@ -178,6 +189,7 @@ function initialize_menu_load() {
   
   const menu_load_text_dialog = document.getElementById('menu_load_text_dialog')
   const menu_load_text_dialog_input = document.getElementById('menu_load_text_dialog_input')
+  const menu_load_text_dialog_ok = document.getElementById('menu_load_text_dialog_ok')
   const menu_load_text_dialog_back = document.getElementById('menu_load_text_dialog_back')
   
   menu_load.addEventListener('click', () => {
@@ -193,7 +205,7 @@ function initialize_menu_load() {
     menu_load_dialog_zip_label.click()
   })
   
-  menu_load_dialog_zip_input.addEventListener('change', async () => {
+  menu_load_dialog_zip_input.addEventListener('input', async () => {
     const file = menu_load_dialog_zip_input.files[0]
     
     if (file) {
@@ -202,13 +214,24 @@ function initialize_menu_load() {
         load_project(project)
         menu_load_dialog.close()
       } catch (e) {
-        alert(e)
+        DS.alert('ファイルがZIPアーカイブでないか、破損しています。', 'プロジェクトの読み込みに失敗しました', { type: 'error' })
       }
     }
   })
   
   menu_load_dialog_cancel.addEventListener('click', () => {
     menu_load_dialog.close()
+  })
+  
+  menu_load_text_dialog_ok.addEventListener('click', async () => {
+    try {
+      let project = await PIO.Importer.import_text(menu_load_text_dialog_input.value)
+      load_project(project)
+      menu_load_text_dialog.close()
+      menu_load_dialog.close()
+    } catch (e) {
+      DS.alert('テキストが正しい形式ではありません。', 'プロジェクトの読み込みに失敗しました', { type: 'error' })
+    }
   })
   
   menu_load_text_dialog_back.addEventListener('click', () => {
@@ -233,19 +256,22 @@ function initialize_menu_download() {
   })
   
   menu_download_dialog_zip.addEventListener('click', async () => {
-    const zip = await PIO.Exporter.export_zip(main_project)
+    const zip = await PIO.Exporter.export_zip(G.project)
     const url = URL.createObjectURL(zip)
     
     const a = document.createElement('a')
-    a.download = main_project.name
+    a.download = G.project.name
     a.href = url
     a.click()
     
     menu_download_dialog.close()
   })
   
-  menu_download_dialog_text.addEventListener('click', () => {
-    navigator.clipboard.writeText('anpanman')
+  menu_download_dialog_text.addEventListener('click', async () => {
+    const text = await PIO.Exporter.export_text(G.project)
+    navigator.clipboard.writeText(text)
+    DS.alert('コピーしました')
+    menu_download_dialog.close()
   })
   
   menu_download_dialog_cancel.addEventListener('click', () => {
@@ -254,6 +280,36 @@ function initialize_menu_download() {
 }
 initialize_menu_download()
 
+function initialize_menu_project() {
+  const menu_project = document.getElementById('menu_project')
+  
+  menu_project.addEventListener('click', async () => {
+    const i = await DS.dropdown(menu_project, ['名前を変更', 'バージョンを変更', 'IDを再生成'])
+    
+    switch (i) {
+      case 0:
+        const name = await DS.prompt('新しいプロジェクト名を入力:', '', { type: 'folder', value: G.project.name })
+        G.project.name = name
+        Explorer.create(G.project)
+        break
+      
+      case 1:
+        break
+      
+      case 2:
+        const ok = await DS.confirm('プロジェクトのIDを再生成しますか？', '現在のID: ' + G.project.info.id + '\n\nIDは、ブラウザのローカルストレージにプロジェクトを保存する際の識別子として使用されています。\nこれを変更すると、現在ブラウザ上にあるこのプロジェクトに関するデータは復元できません。', '再生成する', 'キャンセル')
+        
+        if (ok) {
+          const id = PIO.Generator.generate_project_id()
+          G.project.info.id = id
+          DS.alert('新しいID: ' + id, 'プロジェクトのIDを再生成しました')
+        }
+        break
+    }
+  })
+}
+initialize_menu_project()
+
 function initialize_menu_run() {
   const menu_run = document.getElementById('menu_run')
   const menu_debug = document.getElementById('menu_debug')
@@ -261,138 +317,56 @@ function initialize_menu_run() {
   menu_run.addEventListener('click', () => {
     const is_debug = menu_debug.checked
     
-    /*const w = window.open()
-    let iframe = document.createElement('iframe')
-    iframe.style.margin    = '0px'
-    iframe.style.width     = '100%'
-    iframe.style.height    = '100%'
-    iframe.style.position  = 'fixed'
-    iframe.style.top       = '0px'
-    iframe.style.left      = '0px'
-    iframe.style.boxSizing = 'border-box'
-    iframe.style.border    = 'none'
-    iframe.src = */
-    window.open(main_project.get_page_src({
-      debug: is_debug
-    }))
-    
-    /*w.document.body.append(iframe)*/
+    try {
+      const src = G.project.get_page_src({
+        debug: is_debug
+      })
+      window.open(src)
+    } catch {
+      DS.alert('実行するには、 index' + '.html を用意してください。', 'ページを構築できません')
+    }
   })
 }
 initialize_menu_run()
 
-
-
-/*
-
-const footer_annotations = document.getElementById('footer_annotations')
-
-function show_annotations() {
-const annotations = editor.getSession().getAnnotations()
-
-footer_annotations.innerHTML = ''
-
-let a_texts = []
-let a_lines = []
-let a_types = []
-
-for (const a of annotations) {
-if (!a_texts.includes(a.text)) {
-a_texts.push(a.text)
-a_lines.push([a.row + 1])
-a_types.push(a.type)
-} else {
-a_lines[a_texts.indexOf(a.text)].push(a.row + 1)
+function initialize_menu_tools() {
+  const menu_tools = document.getElementById('menu_tools')
+  
+  menu_tools.addEventListener('click', async () => {
+    const i = await DS.dropdown(menu_tools, ['カラーパレット', '文字コードツール', '記号キーボード'])
+    
+    switch (i) {
+      case 0:
+        break
+      
+      case 1:
+        break
+      
+      case 2:
+        const keyboard = document.createElement('div')
+        keyboard.className = 'keyboard'
+        const chars = '\'"`=(){}&|$_'
+        
+        for (let i = 0; i < chars.length; i++) {
+          const button = document.createElement('button')
+          button.innerText = chars[i]
+          button.addEventListener('click', () => {
+            const char = chars[i]
+            
+            Tab.input(char)
+          })
+          keyboard.appendChild(button)
+        }
+        document.body.appendChild(keyboard)
+    }
+  })
 }
+initialize_menu_tools()
+
+function initialize() {
+  update_welcome_dialog()
+  const dialog = document.getElementById('welcome_dialog')
+  dialog.showModal()
 }
-
-for (let i = 0; i < a_texts.length; i++) {
-const aIcon = document.createElement('span')
-aIcon.className = 'a-icon'
-switch(a_types[i]) {
-case 'error':
-aIcon.style.color = '#e01010'
-aIcon.innerText = 'error'
-break
-
-case 'warning':
-aIcon.style.color = '#e0e020'
-aIcon.innerText = 'warning'
-break
-
-case 'info':
-aIcon.style.color = '#42a7f5'
-aIcon.innerText = 'info'
-break
-}
-footer_annotations.append(aIcon)
-
-const aText = document.createElement('span')
-aText.className = 'a-text'
-
-let lineText = ''
-
-if (a_lines[i].length > 2) {
-lineText = '...'
-a_lines[i].length = 2
-}
-
-lineText = a_lines[i].join() + lineText
-aText.innerText = 'Line ' + lineText + ' :  ' + a_texts[i]
-footer_annotations.append(aText)
-footer_annotations.append(document.createElement('br'))
-}
-}
-
-function annotations_loop() {
-show_annotations()
-setTimeout(annotations_loop, 1000)
-}
-
-let last_log_id = 0
-let is_important = false
-function log(text, important) {
-if (important) {
-is_important = important
-} else {
-if (is_important) {
-return
-}
-}
-
-status_text.innerText = text
-
-let log_id = ++last_log_id
-
-setTimeout(() => {
-if (log_id == last_log_id) {
-status_text.innerText = ''
-}
-if (important) {
-is_important = false
-}
-}, 2400)
-}
-
-function sleep(milli) {
-return new Promise((resolve) => {
-setTimeout(() => {
-resolve()
-}, milli)
-})
-}
-
-function main() {
-main_project = new Project('WebProject')
-
-let html = PFile.create_document('index' + '.' + 'html', '<!DOCTYPE html>\n<html>\n<head>\n  <title>WebProject</title>\n  <meta charset="utf-8">\n  <link rel="stylesheet" href="style' + '.css">\n</head>\n<body>\n  <h1>WebProject</h1>\n  <script src="main' + '.js"><\/script>\n</body>\n</html>')
-let css = PFile.create_document('style' + '.' + 'css', 'body {\n  \n}')
-let js = PFile.create_document('main' + '.' + 'js', '//\n// Your Program Name\n//\n\nalert("Hello, World!")')
-main_project.files.push(html, css, js)
-
-build_ui()
-
-annotations_loop()
-}
-*/
+initialize()
 

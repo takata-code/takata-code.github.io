@@ -3,9 +3,13 @@
 //===============
 
 export default class DS {
-  constructor() {
+  constructor(option = {}) {
     const dialog = document.createElement('dialog')
     dialog.className = 'dialog'
+    
+    if (option.type == 'error') {
+      dialog.style.borderColor = 'var(--error-color)'
+    }
     
     const content = document.createElement('div')
     content.className = 'dialog-content'
@@ -31,8 +35,8 @@ export default class DS {
     document.body.removeChild(this.dialog)
   }
   
-  static alert(text, title) {
-    const ds = new DS()
+  static alert(text, title, option) {
+    const ds = new DS(option)
     
     if (title) {
       const p = document.createElement('p')
@@ -96,7 +100,7 @@ export default class DS {
     })
   }
   
-  static prompt(title, detail) {
+  static prompt(title, detail, option = {}) {
     const ds = new DS()
     
     const p = document.createElement('p')
@@ -111,7 +115,28 @@ export default class DS {
     }
     
     const input = document.createElement('input')
+    input.type = 'text'
+    input.spellcheck = false
     ds.content.appendChild(input)
+    
+    if (option.value) {
+      input.value = option.value
+    }
+    
+      // パス文字列のため、\ / * ? " < > | を禁止
+    function add_limit_for_path() {
+      input.addEventListener('input', () => {
+        input.value = input.value.replace(/[\\/:\*?"<>|]/, '')
+      })
+      
+      input.addEventListener('paste', () => {
+        input.value = input.value.replace(/[\\/:\*?"<>|]/, '')
+      })
+    }
+    
+    if (option.type == 'folder' || option.type == 'file') {
+      add_limit_for_path()
+    }
     
     const ok = document.createElement('button')
     ok.innerText = 'OK'
@@ -126,4 +151,77 @@ export default class DS {
       })
     })
   }
+  
+  static dropdown(dom, messages) {
+    const rect = dom.getBoundingClientRect()
+    const left = rect.left
+    const top = rect.bottom
+    const margin = 30
+    
+    const dropdown = document.createElement('div')
+    dropdown.className = 'dropdown'
+    
+    const back = document.createElement('div')
+    back.className = 'dropdown-back'
+    
+    const onresize = () => {
+      close()
+    }
+    
+    document.body.appendChild(back)
+    document.body.appendChild(dropdown)
+    addEventListener('resize', onresize)
+    
+    
+    function close() {
+      document.body.removeChild(dropdown)
+      document.body.removeChild(back)
+      removeEventListener('resize', onresize)
+    }
+    
+    return new Promise(resolve => {
+      back.addEventListener('click', () => {
+        close()
+        resolve(-1)
+      })
+      
+      for (let i = 0; i < messages.length; i++) {
+        const message = messages[i]
+        
+        const row = document.createElement('div')
+        row.innerText = message
+        
+        dropdown.appendChild(row)
+        
+        row.addEventListener('click', e => {
+          e.stopPropagation()
+          close()
+          resolve(i)
+        })
+      }
+      
+      const style = getComputedStyle(dropdown)
+      const width = Number.parseInt(style.width)
+      const height = Number.parseInt(style.height)
+      
+      dropdown.style.left = (left + width + margin > innerWidth ? innerWidth - width - margin : left) + 'px'
+      dropdown.style.top = (top + height + margin > innerHeight ? innerHeight - height - margin : top) + 'px'
+      
+    })
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }

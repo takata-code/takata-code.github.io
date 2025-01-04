@@ -5,9 +5,16 @@
 const module = {}
 
 module.Directory = class {
-  constructor(name) {
-    this.name = name
+  constructor(path) {
+    this.path = path
     this.children = []
+  }
+  
+  get name() {
+    const matches = this.path.match(/[^\/]+\/$/)
+    if (matches.length != 0) {
+      return matches[0].replace('/', '')
+    }
   }
 }
 
@@ -27,7 +34,7 @@ module.File = class {
       case 'html':
       case 'css':
       case 'js':
-      case 'js':
+      case 'json':
         return true
     }
     return false
@@ -56,6 +63,28 @@ module.File = class {
     const matches = this.path.match(/[^\.]+$/)
     return matches[0]
   }
+  
+  get_icon() {
+    switch (this.extension) {
+      case 'html':
+        return { char: 'code', color: '#66fa75' }
+      case 'css':
+        return { char: 'brush', color: '#ed9b53' }
+      case 'js':
+        return { char: 'data_object', color: '#edc953' }
+      case 'jpg':
+      case 'png':
+      case 'gif':
+      case 'webp':
+        return { char: 'image', color: '#e0e0e0' }
+      case 'txt':
+        return { char: 'description', color: '#e0e0e0' }
+      case 'tproject':
+        return { char: 'manufacturing', color: '#9c6dd6' }
+      default:
+        return { char: 'unknown_document', color: '#e0e0e0' }
+    }
+  }
 }
 
 module.Project = class {
@@ -64,6 +93,8 @@ module.Project = class {
     this.root = null
     this.version = null
     this._files = []
+    this.directories = []
+    this._make_directories()
   }
   
   get name() {
@@ -84,14 +115,64 @@ module.Project = class {
     this._make_directories()
   }
   
-  delete_file(file_path) {
-    let file_to_delete = this._files.find(file => file.path == file_path)
+  change_file_name(old, name) {
+    const file = this.files.find(f => f.path == old)
     
-    if (!file_to_delete) {
+    if (!file) {
       return false
     }
     
-    this._files.splice(this._files.indexOf(file_to_delete), 1)
+    file.path = file.path.replace(/[^\/]+$/, name)
+    
+    this._make_directories()
+    return true
+  }
+  
+  delete_file(path) {
+    const index = this.files.map(f => f.path).indexOf(path)
+    
+    if (index == -1) {
+      return false
+    }
+    
+    this.files.splice(index, 1)
+    this._make_directories()
+    
+    return true
+  }
+  
+  add_folder(path) {
+    this.directories.push(path)
+    this._make_directories()
+  }
+  
+  change_folder_name(old, name) {
+    const dir = this.directories.find(d => d == old)
+    
+    if (!dir) {
+      return false
+    }
+    
+    this.directories[this.directories.indexOf(old)] = old.replace(/[^\/]+\/$/, name + '/')
+    
+    this._make_directories()
+    return true
+  }
+  
+  delete_folder(path) {
+    const index = this.directories.indexOf(path)
+    
+    if (index == -1) {
+      return false
+    }
+    
+    for (const file of this.files) {
+      if (file.path.startsWith(path)) {
+        this.delete_file(file.path)
+      }
+    }
+    
+    this.directories.splice(index, 1)
     this._make_directories()
     
     return true
@@ -104,7 +185,28 @@ module.Project = class {
   
   // ディレクトリの再構築を行い整合性を保つ
   _make_directories() {
-    this.root = new module.Directory(this.name)
+    this.root = new module.Directory(this.name + '/')
+    
+    for (const dir_path of this.directories) {
+      const path_list  = dir_path.split('/')
+      const directory_names = path_list.slice(0, path_list.length - 1)
+      let directory = this.root
+      
+      for (let  i = 0; i < directory_names.length; i++) {
+        const directory_path = directory_names.slice(0, i + 1).join('/') + '/'
+        const directory_name = directory_names[i]
+        
+        let child_directory = directory.children.find(c => c.name == directory_name)
+        
+        if (!child_directory) {
+          child_directory = new module.Directory(directory_path)
+          
+          directory.children.push(child_directory)
+          
+        }
+        directory = child_directory
+      }
+    }
     
     for (const file of this._files) {
       const path_list  = file.path.split('/')
@@ -112,20 +214,16 @@ module.Project = class {
       const file_name = path_list[path_list.length - 1]
       
       let directory = this.root
-      
-      for (const directory_name of directory_names) {
-        let child_directory = directory.children.find(c => c.name == directory_name)
-        
-        if (!child_directory) {
-          child_directory = new module.Directory(directory_name) 
-          directory.children.push(child_directory)
-          
-        }
-        directory = child_directory
+      for (let  i = 0; i < directory_names.length; i++) {
+        const directory_name = directory_names[i]
+        let child_directory = directory.children.filter(c => c.name == directory_name)
+        if(child_directory.length!=1)alert([file.path,child_directory.length])
+        directory = child_directory[0]
       }
       
       directory.children.push(file)
     }
+    
   }
   
   get_page_src(option) {
@@ -138,12 +236,13 @@ module.Project = class {
         
         if (option.debug) {
           if (!(file.type == 'text/javascript')) {
-            continue// elem.code = is_debug ? 'onerror = (event, source, lineno, colno, error) => { let line = lineno - 1 == 0 ? \'行番号不明\' : lineno - 1 + \'行目\'; alert(`${line}: エラー\\n${error}`) }\n' + elem.code: elem.code
+            continue
           }
           
           const debug_code = `
+import DS from 'https://takaon.net/editor/dialog_system${ '.' }js'
 addEventListener('error', (event, source, lineno, colno, error) => {
-  alert(\`同期エラー:\\n\${ source }\`);
+  DS.alert(\`同期エラー:\\n\${ source }\`);
   return true;
 });
 
@@ -151,7 +250,7 @@ addEventListener('unhandledrejection', (event) => {
   alert('非同期エラー:\\nevent.reason');
   return true;
 });
-          `
+          `//.replaceAll('\n', '')
           file.code = debug_code + file.code
         }
       }

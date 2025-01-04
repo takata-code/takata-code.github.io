@@ -3,18 +3,45 @@
 //======
 
 import CM from './content_manager.js'
+import DS from './dialog_system.js'
+import Footer from './footer.js'
+import P from './project.js'
 
-const tabs = []
+let tabs = []
 const tab_headers = document.getElementById('tab_headers')
 const tab_content_container = document.getElementById('tab_content_container')
 
 export default class Tab {
+  static clear() {
+    tabs = []
+    tab_headers.innerHTML = ''
+    tab_content_container.innerHTML = ''
+  }
+  
   static get_all_tabs() {
     return tabs
   }
   
   static get_active_tab() {
     return tabs.find(tab => tab.is_active)
+  }
+  
+  static update() {
+    for (const tab of tabs) {
+      const old_header = tab.tab_header
+      const new_header = tab.create_tab_header(tab.target, tab.is_active)
+      
+      tab_headers.replaceChild(new_header, old_header)
+      tab.tab_header = new_header
+    }
+  }
+  
+  static input(text) {
+    const tab = Tab.get_active_tab()
+    
+    if (tab) {
+      tab.cm.input(text)
+    }
   }
   
   static undo() {
@@ -26,10 +53,11 @@ export default class Tab {
   }
   
   constructor(file) {
-    this.file = file
-    this.tab_header = this.create_tab_header(file)
+    this.target = file
     this.cm = CM.make_content_manager(file)
     this.cm.onchanged = () => this.on_cm_changed()
+    this.cm.on_annotations_changed = a => this.on_cm_annotations_changed(a)
+    this.tab_header = this.create_tab_header(file)
     this.is_active = false
     this.unsaved = false
     
@@ -38,26 +66,35 @@ export default class Tab {
   
   create_tab_header(file) {
     const tab_header = document.createElement('div')
-    tab_header.className = 'tab-header'
+    tab_header.className = 'tab-header' + (this.is_active ? ' tab-header-selected' : '')
+    
+    const icon = document.createElement('span')
+    icon.className = 'tab-header-icon'
+    icon.innerText = file instanceof P.File ? file.get_icon().char : ''
+    icon.style.color = file instanceof P.File ? file.get_icon().color : ''
+    tab_header.appendChild(icon)
     
     const name = document.createElement('span')
     name.className = 'tab-header-name'
-    name.innerText = file.name
+    name.innerText = this.cm.header || file.name
     tab_header.appendChild(name)
     
     const close = document.createElement('span')
     close.className = 'tab-header-close'
-    close.innerText = 'close'
+    close.innerText = this.unsaved ? 'fiber_manual_record' : 'close'
     close.addEventListener('click', e => {
+      e.stopPropagation()
+      
       if (this.unsaved) {
-        this.close()
-        if (confirm('変更を保存しますか')) {
-          this.save()
-        }
+        DS.confirm(this.target.name + 'に加えた変更を保存しますか?', '保存していない内容は消えてしまいます。', '保存', '保存しない').then(result => {
+          if (result) {
+            this.save()
+          }
+          this.close()
+        })
       } else {
         this.close()
       }
-      e.stopPropagation()
     })
     tab_header.appendChild(close)
     
@@ -74,6 +111,11 @@ export default class Tab {
   on_cm_changed() {
     this.tab_header.close.innerText = 'fiber_manual_record'
     this.unsaved = true
+    Footer.set_unsaved(Tab.get_all_tabs().filter(t => t.unsaved).length)
+  }
+  
+  on_cm_annotations_changed(annotations) {
+    Footer.set_annotations(annotations)
   }
   
   open() {
@@ -156,6 +198,8 @@ export default class Tab {
       this.tab_header.close.innerText = 'close'
       this.unsaved = false
     }
+    
+    Footer.set_unsaved(Tab.get_all_tabs().filter(t => t.unsaved).length)
   }
   
   export_data() {
@@ -163,7 +207,7 @@ export default class Tab {
   }
   
   static get_tab(file) {
-    const found = tabs.find(tab => tab.file == file)
+    const found = tabs.find(tab => tab.target == file)
     
     if (found) {
       return found
