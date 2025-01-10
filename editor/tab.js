@@ -52,19 +52,19 @@ export default class Tab {
     Tab.get_active_tab()?.cm.redo()
   }
   
-  constructor(file) {
+  constructor(file, option = {}) {
     this.target = file
-    this.cm = CM.make_content_manager(file)
+    this.cm = CM.make_content_manager(file, option)
     this.cm.onchanged = () => this.on_cm_changed()
     this.cm.on_annotations_changed = a => this.on_cm_annotations_changed(a)
-    this.tab_header = this.create_tab_header(file)
+    this.tab_header = this.create_tab_header(file, option)
     this.is_active = false
     this.unsaved = false
     
     tabs.push(this)
   }
   
-  create_tab_header(file) {
+  create_tab_header(file, option) {
     const tab_header = document.createElement('div')
     tab_header.className = 'tab-header' + (this.is_active ? ' tab-header-selected' : '')
     
@@ -206,13 +206,13 @@ export default class Tab {
     
   }
   
-  static get_tab(file) {
+  static get_tab(file, option = {}) {
     const found = tabs.find(tab => tab.target == file)
     
     if (found) {
       return found
     }
     
-    return new Tab(file)
+    return new Tab(file, option)
   }
 }

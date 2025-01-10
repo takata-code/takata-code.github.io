@@ -25,6 +25,7 @@ body {
   
   --normal-font-size: 13px;
   --icon-font-size: 20px;
+  --code-font: Fira Code;
   
   --normal-font: Inter, sans-serif;
   --icon-font: Material Symbols Rounded;
@@ -49,6 +50,7 @@ body {
 }
 
 div {
+  box-sizing: border-box;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -108,6 +110,15 @@ select {
   padding: 5px;
   border: 2px solid var(--base-color-ll);
   background: var(--base-color);
+}
+
+.keyboard button {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  font: 20px var(--code-font);
 }
 
 .dialog {
@@ -176,6 +187,7 @@ select {
 
 button {
   all: unset;
+  cursor: pointer;
   padding: 8px 16px;
   height: 20px;
   box-sizing: content-box;
@@ -341,6 +353,7 @@ button p {
   right: 5px;
   font-family: var(--icon-font);
   font-size: var(--icon-font-size);
+  background: var(--base-color-ll);
 }
 
 .explorer-element-detail::hover {
@@ -355,11 +368,14 @@ button p {
 
 .explorer-element-name {
   font-size: var(--normal-font-size);
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .explorer-menu {
   border-top: 2px solid var(--base-color-l);
   position: relative;
+  overflow: hidden;
 }
 
 .explorer-menu div {

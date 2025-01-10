@@ -294,6 +294,7 @@ function initialize_menu_project() {
         break
       
       case 1:
+        const version = await DS.prompt('バージョンを変更:', '現在のバージョン: v' + G.project.info.version, { type: 'version' })
         break
       
       case 2:
@@ -332,32 +333,135 @@ initialize_menu_run()
 function initialize_menu_tools() {
   const menu_tools = document.getElementById('menu_tools')
   
+  let keyboard = create_keyboard()
+  let keyboard_enabled = false
+  
+  function create_keyboard() {
+    const keyboard = document.createElement('div')
+    keyboard.className = 'keyboard'
+    const chars = '\'"`=(){}&|$_'
+    
+    for (let i = 0; i < chars.length; i++) {
+      const char = chars[i]
+      const button = document.createElement('button')
+      button.innerText = chars[i]
+      button.addEventListener('click', () => {
+        Tab.input(char)
+      })
+      keyboard.appendChild(button)
+    }
+    
+    function keyboard_move(move_x, move_y) {
+      let style = getComputedStyle(keyboard)
+      
+      const left = Number.parseFloat(style.left) + move_x
+      const top = Number.parseFloat(style.top) + move_y
+      
+      keyboard.style.left = '0'
+      keyboard.style.top = '0'
+      style = getComputedStyle(keyboard)
+      
+      const left_min = 0
+      const left_max = window.innerWidth - Number.parseFloat(style.width)
+      
+      const top_min = 0
+      const top_max = window.innerHeight - Number.parseFloat(style.height)
+      
+      const left_rounded = Math.min(Math.max(left_min, left), left_max)
+      const top_rounded = Math.min(Math.max(top_min, top), top_max)
+      
+      keyboard.style.left = left_rounded + 'px'
+      keyboard.style.top = top_rounded + 'px'
+    }
+    
+    window.addEventListener('resize', () => {
+      keyboard_move(0, 0)
+    })
+    
+    // マウスイベント対応
+    let is_mouse_down = false
+    
+    keyboard.addEventListener('mousedown', () => {
+      is_mouse_down = true
+    })
+    
+    window.addEventListener('mouseup', () => {
+      is_mouse_down = false
+    })
+    
+    window.addEventListener('mousemove', e => {
+      if (!is_mouse_down) {
+        return
+      }
+      
+      keyboard_move(e.movementX, e.movementY)
+    })
+    // タッチイベント対応
+    let is_touching = false
+    let last_touch_x = 0
+    let last_touch_y = 0
+    
+    keyboard.addEventListener('touchstart', e => {
+      is_touching = true
+      
+      last_touch_x = e.touches[0].pageX
+      last_touch_y = e.touches[0].pageY
+    })
+    
+    window.addEventListener('touchup', () => {
+      is_touching = false
+    })
+    
+    window.addEventListener('touchmove', e => {
+      if (!is_touching) {
+        return
+      }
+      
+      const touch_x = e.touches[0].pageX
+      const touch_y = e.touches[0].pageY
+      
+      keyboard_move(touch_x - last_touch_x, touch_y - last_touch_y)
+      
+      last_touch_x = touch_x
+      last_touch_y = touch_y
+    })
+    
+    return keyboard
+  }
+  
+  function show_keyboard() {
+    document.body.appendChild(keyboard)
+    
+    const style = getComputedStyle(keyboard)
+    keyboard.style.left = window.innerWidth / 2 - Number.parseFloat(style.width) / 2 + 'px'
+    keyboard.style.top = window.innerHeight / 2 - Number.parseFloat(style.height) / 2 + 'px'
+    
+    keyboard_enabled = true
+  }
+  
+  function hide_keyboard() {
+    document.body.removeChild(keyboard)
+    keyboard_enabled = false
+  }
+  
   menu_tools.addEventListener('click', async () => {
-    const i = await DS.dropdown(menu_tools, ['カラーパレット', '文字コードツール', '記号キーボード'])
+    const i = await DS.dropdown(menu_tools, ['カラーパレット', '文字コードツール', `記号キーボードを${ keyboard_enabled ? '非表示' : '表示' }`])
     
     switch (i) {
       case 0:
+        const cp = Tab.get_tab(null, { type: 'colorpalette' })
+        cp.open()
         break
       
       case 1:
         break
       
       case 2:
-        const keyboard = document.createElement('div')
-        keyboard.className = 'keyboard'
-        const chars = '\'"`=(){}&|$_'
-        
-        for (let i = 0; i < chars.length; i++) {
-          const button = document.createElement('button')
-          button.innerText = chars[i]
-          button.addEventListener('click', () => {
-            const char = chars[i]
-            
-            Tab.input(char)
-          })
-          keyboard.appendChild(button)
+        if (keyboard_enabled) {
+          hide_keyboard()
+        } else {
+          show_keyboard()
         }
-        document.body.appendChild(keyboard)
     }
   })
 }
