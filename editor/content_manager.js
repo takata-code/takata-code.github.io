@@ -206,6 +206,11 @@ class ProjectInfoContentManager extends ContentManager {
     menu_project_info.innerText = 'このファイル(TPROJECTファイル)は、プロジェクト情報を保存しており、エディタによって自動編集されます。\nこれらの値を変更するには、「プロジェクト」メニューを開いてください。'
     content.appendChild(menu_project_info)
     
+    const menu_project_update_info = document.createElement('div')
+    menu_project_update_info.className = 'message-info'
+    menu_project_update_info.innerText = 'プロジェクト情報の変更を反映するには、このタブを開き直してください。'
+    content.appendChild(menu_project_update_info)
+    
     const table = document.createElement('table')
     table.className = 'project-info-content-manager-table'
     

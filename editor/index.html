@@ -117,7 +117,7 @@
   </div>
   <dialog id="welcome_dialog" class="dialog" style="width: 800px; height: 600px">
     <div class="dialog-content">
-      <p class="dialog-title">ようこそ</p>
+      <p class="dialog-title">ホーム</p>
       <div>
         <div id="welcome_dialog_open_last">
           <button style="width: 400px; height: 80px">
@@ -144,6 +144,41 @@
           </button>
         </div>
       </div>
+    </div>
+  </dialog>
+  <dialog id="new_project_dialog" class="dialog">
+    <div class="dialog-content">
+      <p class="dialog-title">新しいプロジェクトを作成</p>
+      <p>テンプレートを選択:</p>
+      <div id="new_project_dialog_templetes">
+        <div>
+          <button style="width: 400px; height: 80px">
+            <p>HTML, CSS JavaScriptセット</p>
+            <div>
+              ページを構築可能な、最小限のテキストファイルのセットです。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button style="width: 400px; height: 80px">
+            <p>キャンバス描画セット</p>
+            <div>
+              HTMLの&lt;canvas&gt;要素とJavaScriptを用いて動的なグラフィックを作成します。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button style="width: 400px; height: 80px">
+            <p>空のプロジェクト</p>
+            <div>
+              空のフォルダからスタートします。
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button id="new_project_dialog_cancel">キャンセル</button>
     </div>
   </dialog>
   <!-- load dialog -->

@@ -61,6 +61,7 @@ div::-webkit-scrollbar{
 
 input[type=checkbox] {
   appearance: none;
+  cursor: pointer;
   background: var(--base-color-l);
   vertical-align: -6px;
   width: 16px;
@@ -100,6 +101,34 @@ select {
   border-bottom-width: 2px;
   border-radius: 4px;
   background: var(--light);
+}
+
+code {
+  font-family: var(--code-font);
+  background: var(--base-color-l);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+textarea {
+  resize: none;
+  outline: none;
+  display: block;
+  box-sizing: border-box;
+  width: 500px;
+  height: 300px;
+  padding: 20px;
+  background: var(--base-color-l);
+  border: 2px solid var(--base-color-ll);
+  border-radius: 5px;
+  color: var(--text-color);
+  font-family: var(--code-font);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+textarea:focus {
+  border-color: var(--main-color);
 }
 
 .keyboard {
@@ -166,6 +195,7 @@ select {
 }
 
 .dropdown div {
+  cursor: pointer;
   padding: 0 5px;
   border-radius: 5px;
   height: 30px;
@@ -186,7 +216,6 @@ select {
 }
 
 button {
-  all: unset;
   cursor: pointer;
   padding: 8px 16px;
   height: 20px;
@@ -196,11 +225,16 @@ button {
   border-radius: 5px;
   background: var(--base-color-l);
   color: var(--text-color);
-  font-family: var(--normal-font);
+  text-align: left;
+  font: var(--normal-font-size) var(--normal-font);
 }
 
 button:hover {
   border: 2px solid var(--main-color);
+}
+
+button:focus {
+  outline: none;
 }
 
 button p {
@@ -294,6 +328,7 @@ button p {
 }
 
 .explorer-fold {
+  cursor: pointer;
   position: absolute;
   top: 0;
   left: -30px;
@@ -329,6 +364,7 @@ button p {
 }
 
 .explorer-element-row {
+  cursor: pointer;
   width: 100%;
   height: 30px;
   border-radius: 5px;
@@ -345,6 +381,7 @@ button p {
 }
 
 .explorer-element-detail {
+  cursor: pointer;
   width: 20px;
   height: 20px;
   border-radius: 5px;
@@ -482,6 +519,7 @@ button p {
 }
 
 .footer-fold {
+  cursor: pointer;
   position: absolute;
   z-index: 77777;
   top: -30px;
@@ -567,37 +605,21 @@ button p {
   
 }
 
-.status {
-  position: fixed;
-  left: 0px;
-  bottom: 0px;
-  background: var(--base-color);
-  width: 100%;
-  height: 24px;
-  
-  border: 0 solid var(--light);
-  border-top-width: 2px;
+.version-selector {
+  margin: 30px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font: 20px var(--code-font);
 }
 
-.status span {
+.version-selector span {
   
 }
 
-.a-text {
-  margin: 0;
-}
-
-.a-icon {
-  font-size: var(--icon-font-size);
-  font-family: var(--icon-font);
-  font-variation-settings: 
-  'FILL' 0,
-  'wght' 250,
-  'GRAD' 0,
-  'opsz' 24;
-  
-  vertical-align: -8px;
-  height: 0;
+.version-selector input {
+  width: 50px;
+  text-align: center;
 }
 
 .message-info {

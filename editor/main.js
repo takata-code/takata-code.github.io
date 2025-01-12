@@ -21,9 +21,19 @@ if (!contextmenu_enabled) {
   oncontextmenu = () => false
 }
 
+function initialize_window() {
+  document.addEventListener('touchmove', e => {
+    e.preventDefault()
+  }, {
+    passive: false
+  })
+}
+initialize_window()
 
 function load_project(project) {
   Tab.clear()
+  Explorer.clear()
+  
   Explorer.create(project)
   G.project = project
 }
@@ -47,6 +57,40 @@ function create_temp_data() {
   }
 }
 
+function initialize_new_project_dialog() {
+  const dialog = document.getElementById('new_project_dialog')
+  const templetes = document.getElementById('new_project_dialog_templetes')
+  const cancel = document.getElementById('new_project_dialog_cancel')
+  
+  for (const templete of templetes.children) {
+    templete.addEventListener('click', async () => {
+      const index = Array.from(templetes.children).indexOf(templete)
+      dialog.calceled = false
+      dialog.close()
+      const name = await DS.prompt('プロジェクト名を入力:', '', { value: 'Project', type: 'folder' })
+      if (name) {
+        const templetes_json_response = await fetch('templetes.json')
+        const templetes_json = await templetes_json_response.json()
+        const project_text = templetes_json[index].data
+        const project = await PIO.Importer.import_text(project_text, { name: name, generate_tproject: true })
+        project.name = name
+        
+        load_project(project)
+        
+        return
+      }
+      
+      dialog.showModal()
+    })
+  }
+  
+  cancel.addEventListener('click', () => {
+    dialog.calceled = true
+    dialog.close()
+  })
+}
+initialize_new_project_dialog()
+
 function initialize_welcome_dialog() {
   const dialog = document.getElementById('welcome_dialog')
   const open_last = document.getElementById('welcome_dialog_open_last')
@@ -55,9 +99,18 @@ function initialize_welcome_dialog() {
   
   const menu_load_dialog = document.getElementById('menu_load_dialog')
   
+  const new_project_dialog = document.getElementById('new_project_dialog')
+  
   make_new.addEventListener('click', async () => {
-    load_project(new P.Project('Project'))
+    new_project_dialog.showModal()
+    //load_project(new P.Project('Project'))
     dialog.close()
+  })
+  
+  new_project_dialog.addEventListener('close', () => {
+    if (dialog.calceled) {
+      dialog.showModal()
+    }
   })
   
   open_proj.addEventListener('click', async () => {
@@ -197,8 +250,21 @@ function initialize_menu_load() {
     menu_load_dialog_zip_input.value = null
   })
   
-  menu_load_dialog_text.addEventListener('click', () => {
-    menu_load_text_dialog.showModal()
+  menu_load_dialog_text.addEventListener('click', async () => {
+    try {
+      const text = await DS.prompt('プロジェクトテキストをロード', '', { type: 'bigtext' })
+      
+      if (text == null) {
+        return
+      }
+      
+      let project = await PIO.Importer.import_text(text)
+      load_project(project)
+      menu_load_text_dialog.close()
+      menu_load_dialog.close()
+    } catch (e) {
+      DS.alert('テキストが正しい形式ではありません。', 'プロジェクトの読み込みに失敗しました', { type: 'error' })
+    }
   })
   
   menu_load_dialog_zip.addEventListener('click', () => {
@@ -221,21 +287,6 @@ function initialize_menu_load() {
   
   menu_load_dialog_cancel.addEventListener('click', () => {
     menu_load_dialog.close()
-  })
-  
-  menu_load_text_dialog_ok.addEventListener('click', async () => {
-    try {
-      let project = await PIO.Importer.import_text(menu_load_text_dialog_input.value)
-      load_project(project)
-      menu_load_text_dialog.close()
-      menu_load_dialog.close()
-    } catch (e) {
-      DS.alert('テキストが正しい形式ではありません。', 'プロジェクトの読み込みに失敗しました', { type: 'error' })
-    }
-  })
-  
-  menu_load_text_dialog_back.addEventListener('click', () => {
-    menu_load_text_dialog.close()
   })
 }
 initialize_menu_load()
@@ -269,6 +320,7 @@ function initialize_menu_download() {
   
   menu_download_dialog_text.addEventListener('click', async () => {
     const text = await PIO.Exporter.export_text(G.project)
+    document.body.focus()
     navigator.clipboard.writeText(text)
     DS.alert('コピーしました')
     menu_download_dialog.close()
@@ -294,7 +346,12 @@ function initialize_menu_project() {
         break
       
       case 1:
-        const version = await DS.prompt('バージョンを変更:', '現在のバージョン: v' + G.project.info.version, { type: 'version' })
+        const version = await DS.version('バージョンを変更:', G.project.info.version)
+        
+        if (version) {
+          G.project.info.version = version
+        }
+        
         break
       
       case 2:
@@ -396,6 +453,7 @@ function initialize_menu_tools() {
       
       keyboard_move(e.movementX, e.movementY)
     })
+    
     // タッチイベント対応
     let is_touching = false
     let last_touch_x = 0
@@ -445,7 +503,7 @@ function initialize_menu_tools() {
   }
   
   menu_tools.addEventListener('click', async () => {
-    const i = await DS.dropdown(menu_tools, ['カラーパレット', '文字コードツール', `記号キーボードを${ keyboard_enabled ? '非表示' : '表示' }`])
+    const i = await DS.dropdown(menu_tools, ['カラーパレット', `記号キーボードを${ keyboard_enabled ? '非表示' : '表示' }`])
     
     switch (i) {
       case 0:
@@ -454,9 +512,6 @@ function initialize_menu_tools() {
         break
       
       case 1:
-        break
-      
-      case 2:
         if (keyboard_enabled) {
           hide_keyboard()
         } else {

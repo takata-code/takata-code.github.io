@@ -6,6 +6,7 @@ import P from './project.js'
 import Tab from './tab.js'
 import DS from './dialog_system.js'
 import G from './global.js'
+import Animation from './animation.js'
 
 // ファイル操作ダイアログの初期化
 async function file_detail_dropdown_open(dom) {
@@ -48,9 +49,13 @@ async function folder_detail_dropdown_open(dom) {
       const name = await DS.prompt('新しいフォルダ名を入力:', '', { type: 'folder', value: Explorer.selected.name })
       
       if (name) {
+        const map = Explorer.get_folder_open_map(G.project)
+        delete map[Explorer.selected.path]
+        
         if (G.project.change_folder_name(Explorer.selected.path, name) == false) {
           DS.alert('正常に名前を変更できませんでした')
         }
+        
         Explorer.create(G.project)
         Tab.update()
       }
@@ -65,7 +70,7 @@ async function folder_detail_dropdown_open(dom) {
         Explorer.create(G.project)
         
         if (!result) {
-          DS.alert('正常に削除できなかったようです')
+          DS.alert('正常に削除できなかったようです' + result)
         }
         
         return
@@ -125,6 +130,8 @@ explorer.innerHTML = ''
 
 let selected = null
 
+let path_to_dom_map = {}
+
 export default class Explorer {
   static get selected() {
     return selected
@@ -140,10 +147,15 @@ export default class Explorer {
   }
   
   static clear() {
+    path_to_dom_map = {}
     explorer.innerHTML = ''
   }
   
-  static create(project) {
+  static create(project, folder_open_map) {
+    if (!folder_open_map) {
+      folder_open_map = Explorer.get_folder_open_map(project)
+    }
+    
     Explorer.clear()
     const rows = []
     
@@ -175,21 +187,39 @@ export default class Explorer {
         
         const content = document.createElement('div')
         content.style.marginLeft = '20px'
+        content.style.overflow = 'hidden'
+        content.style.borderLeft = '2px solid var(--base-color-l)'
         content.hidden = true
         folder.appendChild(content)
-        
         
         folder.open = false
         folder.selected = false
         
-        action = () => {
+        action = async (skip_animation) => {
           folder.open = !folder.open
-          content.hidden = !folder.open
+          
           icon.innerText = folder.open ? 'keyboard_arrow_downfolder_open' : 'keyboard_arrow_rightfolder'
+          content.hidden = false
+          
+          if (!skip_animation) {
+            content.style.height = 'auto'
+            const height = Number.parseInt(getComputedStyle(content).height)
+            await Animation.direct(a => content.style.height = height * (folder.open ? a : (1 - a)) + 'px', 100)
+            content.style.height = 'auto'
+          }
+          
+          content.hidden = !folder.open
+        }
+        
+        if (folder_open_map) {
+          if (folder_open_map[element.path] == true) {
+            action(true)
+          }
         }
         
         folder.className = 'explorer-element'
         
+        path_to_dom_map[element.path] = folder
         parent_dom.append(folder)
         
         for (const child of element.children) {
@@ -215,6 +245,7 @@ export default class Explorer {
         
         row.appendChild(name_label)
         parent_dom.appendChild(file)
+        path_to_dom_map[element.path] = file
         
         action = () => {
           if (element.extension == 'tproject') {
@@ -287,6 +318,18 @@ export default class Explorer {
       rows.push(row)
     }
     recursive_explorer_add_children(project.root, explorer)
+  }
+  
+  static get_folder_open_map(project) {
+    const map = {}
+    
+    for (const path in path_to_dom_map) {
+      if (path.endsWith('/')) {
+        map[path] = path_to_dom_map[path].open
+      }
+    }
+    
+    return map
   }
 }
 

@@ -163,13 +163,26 @@ module.Project = class {
     const index = this.directories.indexOf(path)
     
     if (index == -1) {
+      alert('削除するフォルダのディレクトリインデックスを見つけられません')
       return false
     }
     
-    for (const file of this.files) {
+    const files = this.files.concat()
+    
+    for (const file of files) {
       if (file.path.startsWith(path)) {
         this.delete_file(file.path)
       }
+    }
+    
+    const inner_directories = this.get_directory(path).children.filter(e => {
+      return e instanceof module.Directory
+    }).map(e => {
+      return e.path
+    })
+    
+    for (const directory of inner_directories) {
+      this.delete_folder(directory)
     }
     
     this.directories.splice(index, 1)
@@ -181,6 +194,20 @@ module.Project = class {
   get_file(path) {
     let file = this._files.find(f => f.path == file_path)
     return file
+  }
+  
+  get_directory(path) {
+    const path_list  = path.split('/')
+    const directory_names = path_list.slice(0, path_list.length - 1)
+    
+    let directory = this.root
+    for (let  i = 0; i < directory_names.length; i++) {
+      const directory_name = directory_names[i]
+      let child_directory = directory.children.filter(c => c.name == directory_name)
+      
+      directory = child_directory[0]
+    }
+    return directory
   }
   
   // ディレクトリの再構築を行い整合性を保つ
@@ -217,7 +244,7 @@ module.Project = class {
       for (let  i = 0; i < directory_names.length; i++) {
         const directory_name = directory_names[i]
         let child_directory = directory.children.filter(c => c.name == directory_name)
-        if(child_directory.length!=1)alert([file.path,child_directory.length])
+        
         directory = child_directory[0]
       }
       

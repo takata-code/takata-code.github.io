@@ -11,7 +11,9 @@ function blob_to_base64(blob) {
     const file_reader = new FileReader()
     
     file_reader.onloadend = () => {
-      resolve(file_reader.result)
+      const url = file_reader.result
+      const base64 = url.match(/[^,]+$/)[0]
+      resolve(base64)
     }
     
     file_reader.readAsDataURL(blob)
@@ -32,7 +34,7 @@ function base64_to_blob(base64) {
 }
 
 module.Generator = class {
-  static generate_project_json(project = null) {
+  static generate_tproject(project = null) {
     let project_info
     
     if (project) {
@@ -60,22 +62,23 @@ module.Generator = class {
 }
 
 module.Importer = class {
-  static async import_text(text) {
+  static async import_text(text, option = {}) {
     const lines = text.split('\n')
-    const base64 = lines[lines.length - 1]
+    const base64 = 'data:application/zip;base64,' + lines[lines.length - 1]
     try {
       const zip = base64_to_blob(base64)
       try {
-        return await module.Importer.import_zip(zip)
+        return await module.Importer.import_zip(zip, option)
       } catch (e) {
+        alert(e)
         throw e
       }
-    } catch {
-      throw new Error('プロジェクトテキストの読み込みに失敗しました (Base64 テキストを発見できません)')
+    } catch (e) {
+      throw new Error('プロジェクトテキストの読み込みに失敗しました (Base64 テキストを発見できません)' + e)
     }
   }
   
-  static async import_zip(zip_file) {
+  static async import_zip(zip_file, option = {}) {
     try {
       if (!zip_file.name) {
         zip_file.name = 'UnknownProject.zip'
@@ -85,18 +88,31 @@ module.Importer = class {
       const jszip = new JSZip()
       await jszip.loadAsync(data)
       
+      const files = {}
+      for (const path in jszip.files) {
+        if (path.includes('__MACOSX')) {
+          continue
+        }
+        
+        if (option.generate_tproject && path.endsWith('.tproject')) {
+          continue
+        }
+        
+        files[path] = jszip.files[path]
+      }
+      
       // project_name の決定
       // 1. project_name.tproject が存在した場合は、それとする
       // 2. すべてのファイルが project_name で始まっていれば、それとする
       // 3. ZIP ファイルの名前とする
-      let tproject = Object.keys(jszip.files).find(p => p.endsWith('.tproject'))
+      let tproject = Object.keys(files).find(p => p.endsWith('.tproject'))
       let project_name = tproject ? tproject.substr(0, tproject.indexOf('.')) : null
       let has_root_directory = true
       
       const zip_file_name = zip_file.name.match(/^[^\.]+(?=.)/)[0]
-      const first_file_first_name = jszip.files[Object.keys(jszip.files)[0]].name.match(/^[^\/]+/)[0]
+      const first_file_first_name = Object.keys(files).length == 0 ? null : files[Object.keys(files)[0]].name.match(/^[^\/]+/)[0]
       
-      for (const path in jszip.files) {
+      for (const path in files) {
         if (path.substr(0, first_file_first_name.length) != first_file_first_name) {
           has_root_directory = false
         }
@@ -113,30 +129,40 @@ module.Importer = class {
           }
         }
       }
+      
+      if (option.name) {
+        project_name = option.name
+      }
+      
       const project = new P.Project(project_name)
       
-      for (let path in jszip.files) {
-        const jszip_file = jszip.files[path]
+      for (let path in files) {
+        const jszip_file = files[path]
         
         if (has_root_directory) {
           path = path.replace(`${ project_name }/`, '')
         }
         
-        if (jszip_file.dir||true) {
-          if (path.length != 0) {
-            const directory_match = path.match(/.*\/(?=[^\/]*$)/)
+        if (path.length != 0) {
+          const directory_match = path.match(/.*\/(?=[^\/]*$)/)
+          
+          if (directory_match) {
+            let spaces = directory_match[0].split('/')
+            spaces = spaces.slice(0, spaces.length - 1)
             
-            if (directory_match) {
-            if (!project.directories.includes(directory_match[0]))
+            for (let i = 0; i < spaces.length; i++) {
+              const directory = spaces.slice(0, i + 1).join('/') + '/'
             
-              project.directories.push(directory_match[0])
+              if (!project.directories.includes(directory)) {
+                project.directories.push(directory)
+              }
             }
           }
         }
       }
       
-      for (let path in jszip.files) {
-        const jszip_file = jszip.files[path]
+      for (let path in files) {
+        const jszip_file = files[path]
         
         if (!jszip_file.dir) {
           const blob = await jszip_file.async('blob')
@@ -152,14 +178,20 @@ module.Importer = class {
         }
       }
       
-      let project_json = project.files.find(f => f.path.match(/.*\.tproject$/))
-      if (!project_json) {
-        project_json = new P.File(project_name + '.tproject', new Blob([module.Generator.generate_project_json()]))
-        project.add_file(project_json)
-        await project_json.load()
+      let tproject_file = project.files.find(f => f.path.match(/.*\.tproject$/))
+      const new_tproject_needed = tproject_file == null || option.generate_tproject
+      
+      if (new_tproject_needed) {
+        if (tproject_file) {
+          project.delete_file(tproject_file.path)
+        }
+        
+        tproject_file = new P.File(project_name + '.tproject', new Blob([module.Generator.generate_tproject()]))
+        project.add_file(tproject_file)
+        await tproject_file.load()
       }
       
-      project.info = JSON.parse(project_json.text)
+      project.info = JSON.parse(tproject_file.text)
       
       return project
     } catch(e) {
@@ -174,7 +206,7 @@ module.Exporter = class {
     const base64 = await blob_to_base64(zip)
     
     let text = ''
-    text += `${ project.name } v${ project.info.version }` + '\n'
+    text += `${ project.name }\nv${ project.info.version }\n`
     text += base64
     
     return text

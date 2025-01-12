@@ -100,6 +100,95 @@ export default class DS {
     })
   }
   
+  static version(title, old_version = '0.0.0') {
+    const ds = new DS()
+    
+    const p = document.createElement('p')
+    p.innerText = title
+    p.className = 'dialog-title'
+    ds.content.appendChild(p)
+    
+    const old_version_label = document.createElement('span')
+    old_version_label.innerText = '現在のバージョン: '
+    ds.content.appendChild(old_version_label)
+    
+    const old_version_value = document.createElement('code')
+    old_version_value.innerText = 'v' + old_version
+    ds.content.appendChild(old_version_value)
+    
+    const version = document.createElement('div')
+    version.className = 'version-selector'
+    ds.content.appendChild(version)
+    
+    function add_version_element_normalizer(element) {
+      element.addEventListener('blur', () => {
+        let value = element.value
+        
+        if (!value.match(/^[0-9]+$/)) {
+          value = value.replace(/[^0-9]/g, '')
+          
+          if (value.length == 0) {
+            value = '0'
+          }
+        }
+        
+        element.value = value
+      })
+    }
+    
+    const version_v = document.createElement('span')
+    version_v.innerText = 'v'
+    version.appendChild(version_v)
+    
+    const version_major = document.createElement('input')
+    version_major.type = 'text'
+    add_version_element_normalizer(version_major)
+    version_major.value = old_version.split('.')[0]
+    version.appendChild(version_major)
+    
+    const version_p1 = document.createElement('span')
+    version_p1.innerText = '.'
+    version.appendChild(version_p1)
+    
+    const version_minor = document.createElement('input')
+    version_minor.type = 'text'
+    add_version_element_normalizer(version_minor)
+    version_minor.value = old_version.split('.')[1]
+    version.appendChild(version_minor)
+    
+    const version_p2 = document.createElement('span')
+    version_p2.innerText = '.'
+    version.appendChild(version_p2)
+    
+    const version_patch = document.createElement('input')
+    version_patch.type = 'text'
+    add_version_element_normalizer(version_patch)
+    version_patch.value = old_version.split('.')[2]
+    version.appendChild(version_patch)
+    
+    const ok = document.createElement('button')
+    ok.innerText = 'OK'
+    ds.footer.appendChild(ok)
+    
+    const cancel = document.createElement('button')
+    cancel.innerText = 'キャンセル'
+    ds.footer.appendChild(cancel)
+    
+    ds.show_modal()
+    
+    return new Promise(resolve => {
+      ok.addEventListener('click', () => {
+        ds.close()
+        resolve(`${ version_major.value }.${ version_minor.value }.${ version_patch.value }`)
+      })
+      
+      cancel.addEventListener('click', () => {
+        ds.close()
+        resolve(null)
+      })
+    })
+  }
+  
   static prompt(title, detail, option = {}) {
     const ds = new DS()
     
@@ -114,23 +203,49 @@ export default class DS {
       ds.content.appendChild(label)
     }
     
-    const input = document.createElement('input')
-    input.type = 'text'
-    input.spellcheck = false
+    let input
+    
+    if (option.type == 'bigtext') {
+      input = document.createElement('textarea')
+      input.wrap = 'soft'
+      input.spellcheck = false
+      input.placeholder = 'ここに直接入力'
+    } else {
+      input = document.createElement('input')
+      input.type = 'text'
+      input.spellcheck = false
+    }
+    
+    // 貼り付けボタンの追加
+    if (option.type == 'bigtext') {
+      const paste = document.createElement('button')
+      paste.style.display = 'flex'
+      paste.style.alignItems = 'center'
+      paste.innerHTML = '<span style="font: var(--icon-font-size) var(--icon-font)">content_paste_go</span>クリップボードから貼り付け'
+      paste.addEventListener('click', async () => {
+        input.value = await navigator.clipboard.readText()
+      })
+      ds.content.appendChild(paste)
+    }
+    
     ds.content.appendChild(input)
     
     if (option.value) {
       input.value = option.value
     }
     
-      // パス文字列のため、\ / * ? " < > | を禁止
+    // パス文字列のため、\ / * ? " < > | を禁止
     function add_limit_for_path() {
       input.addEventListener('input', () => {
         input.value = input.value.replace(/[\\/:\*?"<>|]/, '')
+        
+        ok.hidden = input.value.length == 0
       })
       
       input.addEventListener('paste', () => {
         input.value = input.value.replace(/[\\/:\*?"<>|]/, '')
+        
+        ok.hidden = input.value.length == 0
       })
     }
     
@@ -142,12 +257,21 @@ export default class DS {
     ok.innerText = 'OK'
     ds.footer.appendChild(ok)
     
+    const cancel = document.createElement('button')
+    cancel.innerText = 'キャンセル'
+    ds.footer.appendChild(cancel)
+    
     ds.show_modal()
     
     return new Promise(resolve => {
       ok.addEventListener('click', () => {
         ds.close()
         resolve(input.value)
+      })
+      
+      cancel.addEventListener('click', () => {
+        ds.close()
+        resolve(null)
       })
     })
   }
@@ -209,19 +333,4 @@ export default class DS {
       
     })
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 }
