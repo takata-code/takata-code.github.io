@@ -160,12 +160,19 @@ module.Project = class {
   
   change_folder_name(old, name) {
     const dir = this.directories.find(d => d == old)
+    const path = old.replace(/[^\/]+\/$/, name + '/')
     
     if (!dir) {
       return false
     }
     
-    this.directories[this.directories.indexOf(old)] = old.replace(/[^\/]+\/$/, name + '/')
+    this.directories[this.directories.indexOf(old)] = path
+    
+    for (const file of this.files) {
+      if (file.path.startsWith(old)) {
+        file.path = file.path.replace(old, path)
+      }
+    }
     
     this._make_directories()
     return true

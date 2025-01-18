@@ -11,7 +11,7 @@ import Animation from './animation.js'
 import G from './global.js'
 
 const reset_local_storage = false
-const contextmenu_enabled = true
+const contextmenu_enabled = false
 
 if (reset_local_storage) {
   localStorage.clear()
