@@ -98,13 +98,10 @@ class DocumentContentManager extends ContentManager {
         
       if (ace_mode == 'javascript') {
         if (session.$worker) {
-          const disable_rules = ['E054']
-          
           session.$worker.send("setOptions", [{
             asi: true,
-            esversion: 16,
-            esnext: false,
-            maxerr: 16384
+            esversion: 15,
+            maxerr: 10000
           }])
         }
       }

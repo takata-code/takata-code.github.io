@@ -200,6 +200,7 @@ export default class Tab {
     }
     
     tab_content_container.innerHTML = ''
+    Footer.set_annotations([])
   }
   
   save() {
