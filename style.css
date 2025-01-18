@@ -9,7 +9,7 @@ body {
   
   background: var(--base-color);
   
-  font-family: sans-serif;
+  font-family: JetBrains Mono, sans-serif;
 }
 
 .header {
@@ -23,11 +23,13 @@ body {
   border-bottom: 2px solid gray;
   display: flex;
   align-items: center;
+  padding: 0 20px;
 }
 
 .header-title {
-  font-size: 35px;
-  color: linear-gradient(to bottom right, var(--main-color-dd), var(--main-color));
+  font-size: 30px;
+  font-weight: bold
+  color: --main-color-dd;
 }
 
 .content {
@@ -42,7 +44,7 @@ body {
   box-sizing: border-box;
   padding: 40px;
   width: 100vw;
-  height: 50vw;
+  height: 40vw;
   margin: 0;
   color: var(--base-color);
   background: linear-gradient(to bottom right, var(--main-color-dd), var(--main-color));
@@ -55,16 +57,10 @@ body {
 
 .content a {
   all: unset;
-  
-  text-align: center;
+  padding: 10px;
   background: var(--main-color);
-  
   color: var(--base-color);
-  
   font-weight: bold;
-  
-  width: 300px;
-  height: 40px;
   
   border-radius: 20px;
   
