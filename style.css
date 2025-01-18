@@ -28,8 +28,8 @@ body {
 
 .header-title {
   font-size: 30px;
-  font-weight: bold
-  color: --main-color-dd;
+  font-weight: bold;
+  color: var(--main-color-dd);
 }
 
 .content {
