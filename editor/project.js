@@ -25,6 +25,7 @@ module.File = class {
       case 'css': return 'text/css'
       case 'js': return 'text/javascript'
       case 'json': return 'application/json'
+      case 'txt': return 'txt'
       default: return ''
     }
   }
@@ -35,6 +36,8 @@ module.File = class {
       case 'css':
       case 'js':
       case 'json':
+      case 'txt':
+      case 'csv':
         return true
     }
     return false
@@ -72,13 +75,22 @@ module.File = class {
         return { char: 'brush', color: '#ed9b53' }
       case 'js':
         return { char: 'data_object', color: '#edc953' }
+      case 'csv':
+        return { char: 'table', color: '#e0e0e0' }
       case 'jpg':
+      case 'jpeg':
       case 'png':
       case 'gif':
       case 'webp':
+      case 'svg':
+      case 'bmp':
+      case 'apng':
         return { char: 'image', color: '#e0e0e0' }
       case 'txt':
         return { char: 'description', color: '#e0e0e0' }
+      case 'wav':
+      case 'mp3':
+        return { char: 'music_note', color: '#e0e0e0' }
       case 'tproject':
         return { char: 'manufacturing', color: '#9c6dd6' }
       default:

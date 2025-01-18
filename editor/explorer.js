@@ -86,10 +86,14 @@ function initialize_add_item_dialog() {
   const dialog_folder = document.getElementById('add_item_dialog_folder')
   const dialog_new_file = document.getElementById('add_item_dialog_new_file')
   const dialog_load_file = document.getElementById('add_item_dialog_load_file')
+  const dialog_load_file_details = document.getElementById('add_item_dialog_load_file_details')
   const dialog_cancel = document.getElementById('add_item_dialog_cancel')
   
   add_item.addEventListener('click', async () => {
     dialog.showModal()
+    update_add_item_dialog: {
+      dialog_load_file_details.innerText = `${ Explorer.current.length == 0 ? 'ルートフォルダ' : Explorer.current } 内に追加します。`
+    }
   })
   
   dialog_folder.addEventListener('click', async () => {
@@ -116,7 +120,39 @@ function initialize_add_item_dialog() {
   })
   
   dialog_load_file.addEventListener('click', async () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.multiple = true
+    input.hidden = true
+    dialog_load_file.appendChild(input)
     
+    input.addEventListener('change', () => {
+      const files = input.files
+      
+      if (files.length == 0) {
+        return
+      }
+      
+      const project_files = Array.from(files).map(f => {
+        const path = Explorer.current + f.name
+        const blob = new Blob([f])
+        return new P.File(path, blob)
+      })
+      
+      for (const project_file of project_files) {
+        G.project.add_file(project_file)
+      }
+      
+      Explorer.create(G.project)
+      
+      dialog_load_file.removeChild(input)
+    })
+    
+    input.addEventListener('click', e => {
+      e.stopPropagation()
+    })
+    
+    input.click()
   })
   
   dialog_cancel.addEventListener('click', async() => {

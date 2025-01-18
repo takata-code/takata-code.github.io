@@ -153,14 +153,18 @@ export default class Tab {
     let index = Array.from(tab_headers.children).indexOf(this.tab_header)
     tab_headers.removeChild(this.tab_header)
     
+    // 元からアクティブでなかったならば、何もしない
     if (!is_active) {
       return
     }
     
+    // 次の Tab を決定する
     if (tab_headers.children.length > 0) {
       let next_index = index - 1 >= 0 ? index - 1 : index
       tab_headers.children[next_index].tab.activate()
     }
+    
+    // ここでこの Tab は GC の餌食
   }
   
   activate() {
@@ -170,6 +174,7 @@ export default class Tab {
     }
     
     this.is_active = true
+    this.cm.is_active = true
     
     this.select_tab_header()
     
@@ -181,7 +186,12 @@ export default class Tab {
   }
   
   deactivate() {
+    if (!this.is_active) {
+      return
+    }
+    
     this.is_active = false
+    this.cm.is_active = false
     
     this.cm.deactivate()
     

@@ -16,7 +16,7 @@ function initialize_ace_editor() {
   ace_div.style.height = '100%'
   
   ace_editor = ace.edit(ace_div, {
-    fontFamily: 'Fira Code',
+    fontFamily: 'var(--code-font)',
     fontSize: '10.5pt',
     tabSize: 2,
     customScrollbar: true,
@@ -34,6 +34,7 @@ export default class ContentManager {
     this.target = target
     this.content = null
     this.header = null
+    this.is_active = false
     
     // 変更が加えられたとき発火
     this.onchanged = () => {}
@@ -59,9 +60,10 @@ export default class ContentManager {
       case 'jpeg':
       case 'png':
       case 'gif':
-      case 'ico':
       case 'webp':
       case 'svg':
+      case 'bmp':
+      case 'apng':
         return new ImageContentManager(target)
     }
     return new UnknownContentManager(target)
@@ -87,18 +89,21 @@ class DocumentContentManager extends ContentManager {
     const self = this
     this.on_ace_editor_changed = () => {
       self.text = ace_editor.getValue()
-      self.target.text = self.text
       self.onchanged()
     }
     
+    // 構文解析のモード変更時
     this.on_ace_editor_change_mode = (e, session) => {
       const ace_mode = self.get_ace_editor_mode(self.target.type)
-      
+        
       if (ace_mode == 'javascript') {
         if (session.$worker) {
+          const disable_rules = ['E054']
+          
           session.$worker.send("setOptions", [{
             asi: true,
-            esversion: 15,
+            esversion: 16,
+            esnext: false,
             maxerr: 16384
           }])
         }
@@ -169,7 +174,6 @@ class DocumentContentManager extends ContentManager {
   
   deactivate() {
     this.text = ace_editor.getValue()
-    this.target.text = this.text
     ace_editor.getSession().removeListener('change', this.on_ace_editor_changed)
     ace_editor.getSession().removeListener('changeMode', this.on_ace_editor_change_mode)
     ace_editor.getSession().removeListener('changeAnnotation', this.on_ace_editor_change_annotations)
@@ -178,7 +182,10 @@ class DocumentContentManager extends ContentManager {
   }
   
   save() {
-    this.text = ace_editor.getValue()
+    if (this.is_active) {
+      this.text = ace_editor.getValue()
+    }
+    
     this.target.blob = new Blob([this.text])
     this.target.text = this.text
   }

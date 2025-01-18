@@ -2,14 +2,14 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Editor</title>
+  <title>Takaon Editor</title>
   <meta name="viewport" content="initial-scale=1.0, width=device-width">
   <link rel="stylesheet" href="style.css">
   
   <!-- Google Fonts and Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   
   <script src="main.js" type="module"></script>
@@ -115,7 +115,7 @@
       <div id="footer_annotations" class="footer-annotations"></div>
     </div>
   </div>
-  <dialog id="welcome_dialog" class="dialog" style="width: 800px; height: 600px">
+  <dialog id="welcome_dialog" class="dialog" style="width: 600px;">
     <div class="dialog-content">
       <p class="dialog-title">ホーム</p>
       <div>
@@ -143,6 +143,9 @@
             </div>
           </button>
         </div>
+      </div>
+      <div class="dialog-footer">
+        <p style="color: gray">Takaon Editor v0.0.0 Beta (2024/01/18)</p>
       </div>
     </div>
   </dialog>
@@ -225,7 +228,8 @@
     <div class="dialog-content">
       <p class="dialog-title">プロジェクトをダウンロード</p>
       <input id="project_settings_include_checkbox" type="checkbox" checked>
-      <label for="project_settings_include_checkbox">プロジェクト設定を含める</label>
+      <label for="project_settings_include_checkbox">プロジェクト情報ファイルを含める</label>
+      <div id="project_settings_include_message" class="message-info" hidden>プロジェクト情報ファイル(TPROJECT)を削除すると、<br>プロジェクト名、ID、バージョンなどのデータは消えてしまいます。</div>
       <br>
       <br><br>
       <button id="menu_download_dialog_zip" style="width: 400px; height: 80px">
@@ -295,7 +299,8 @@
           <button id="add_item_dialog_load_file" style="width: 400px; height: 80px">
             <p>既存のファイルを追加</p>
             <div>
-              ローカルのファイルを取り込みます。
+              ローカルのファイルを取り込みます。<br>
+              <span id="add_item_dialog_load_file_details"></span>
             </div>
           </button>
         </div>

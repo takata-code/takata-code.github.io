@@ -1,3 +1,7 @@
+html {
+  overflow: hidden;
+}
+
 body {
   --main-color-ll: #0fc2c0;
   --main-color-l: #0caba8;
@@ -25,7 +29,7 @@ body {
   
   --normal-font-size: 13px;
   --icon-font-size: 20px;
-  --code-font: Fira Code;
+  --code-font: JetBrains Mono;
   
   --normal-font: Inter, sans-serif;
   --icon-font: Material Symbols Rounded;
@@ -47,16 +51,13 @@ body {
   
   margin: 0;
   padding: 0;
+  
+  -webkit-overflow-scrolling: touch;
 }
 
 div {
   box-sizing: border-box;
-  -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-div::-webkit-scrollbar{
-  display: none;
 }
 
 input[type=checkbox] {
@@ -81,6 +82,10 @@ input[type=checkbox]:checked:before {
   border-right: 2px solid var(--main-color);
   border-bottom: 2px solid var(--main-color);
   content: '';
+}
+
+input[type=checkbox]:focus {
+  outline: none;
 }
 
 input[type=text] {

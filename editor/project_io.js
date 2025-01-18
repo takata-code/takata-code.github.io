@@ -201,8 +201,8 @@ module.Importer = class {
 }
 
 module.Exporter = class {
-  static async export_text(project) {
-    const zip = await module.Exporter.export_zip(project)
+  static async export_text(project, options) {
+    const zip = await module.Exporter.export_zip(project, options)
     const base64 = await blob_to_base64(zip)
     
     let text = ''
@@ -212,7 +212,7 @@ module.Exporter = class {
     return text
   }
   
-  static async export_zip(project){
+  static async export_zip(project, options){
     const jszip = new JSZip()
     
     for (const folder of project.directories) {
@@ -220,6 +220,12 @@ module.Exporter = class {
     }
     
     for (const file of project.files) {
+      if (file.path.endsWith('tproject')) {
+        if (options.delete_project_info) {
+          continue
+        }
+      }
+      
       jszip.file(file.path, file.blob)
     }
     

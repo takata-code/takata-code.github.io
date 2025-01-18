@@ -22,7 +22,7 @@ if (!contextmenu_enabled) {
 }
 
 function initialize_window() {
-  document.addEventListener('touchmove', e => {
+  document.addEventListener('dblclick', e => {
     e.preventDefault()
   }, {
     passive: false
@@ -36,6 +36,7 @@ function load_project(project) {
   
   Explorer.create(project)
   G.project = project
+  save_project_data_to_local_storage()
 }
 
 async function save_project_data_to_local_storage() {
@@ -64,10 +65,12 @@ function initialize_new_project_dialog() {
   
   for (const templete of templetes.children) {
     templete.addEventListener('click', async () => {
-      const index = Array.from(templetes.children).indexOf(templete)
       dialog.calceled = false
       dialog.close()
+      
+      const index = Array.from(templetes.children).indexOf(templete)
       const name = await DS.prompt('プロジェクト名を入力:', '', { value: 'Project', type: 'folder' })
+      
       if (name) {
         const templetes_json_response = await fetch('templetes.json')
         const templetes_json = await templetes_json_response.json()
@@ -103,12 +106,11 @@ function initialize_welcome_dialog() {
   
   make_new.addEventListener('click', async () => {
     new_project_dialog.showModal()
-    //load_project(new P.Project('Project'))
     dialog.close()
   })
   
   new_project_dialog.addEventListener('close', () => {
-    if (dialog.calceled) {
+    if (new_project_dialog.calceled) {
       dialog.showModal()
     }
   })
@@ -296,19 +298,34 @@ initialize_menu_load()
 function initialize_menu_download() {
   const menu_download = document.getElementById('menu_download')
   const menu_download_dialog = document.getElementById('menu_download_dialog')
-  const menu_download_dialog_project_settings_included = document.getElementById('menu_download_dialog_project_settings_included')
-  const menu_download_dialog_temp_data_included = document.getElementById('menu_download_dialog_temp_data_included')
+  
+  const project_settings_include_checkbox = document.getElementById('project_settings_include_checkbox')
+  const project_settings_include_message = document.getElementById('project_settings_include_message')
+  
   const menu_download_dialog_zip = document.getElementById('menu_download_dialog_zip')
   const menu_download_dialog_text = document.getElementById('menu_download_dialog_text')
   const menu_download_dialog_cancel = document.getElementById('menu_download_dialog_cancel')
   
-  menu_download.addEventListener('click', () => {
+  let project_zip = null
+  let project_text = null
+  
+  project_settings_include_checkbox.addEventListener('change', () => {
+    project_settings_include_message.hidden = project_settings_include_checkbox.checked
+  })
+  
+  menu_download.addEventListener('click', async () => {
+    const options = {
+      delete_project_info: !project_settings_include_checkbox.checked
+    }
+    
+    project_zip = await PIO.Exporter.export_zip(G.project, options)
+    project_text = await PIO.Exporter.export_text(G.project, options)
+    
     menu_download_dialog.showModal()
   })
   
   menu_download_dialog_zip.addEventListener('click', async () => {
-    const zip = await PIO.Exporter.export_zip(G.project)
-    const url = URL.createObjectURL(zip)
+    const url = URL.createObjectURL(project_zip)
     
     const a = document.createElement('a')
     a.download = G.project.name
@@ -319,9 +336,7 @@ function initialize_menu_download() {
   })
   
   menu_download_dialog_text.addEventListener('click', async () => {
-    const text = await PIO.Exporter.export_text(G.project)
-    document.body.focus()
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(project_text)
     DS.alert('コピーしました')
     menu_download_dialog.close()
   })
@@ -466,7 +481,7 @@ function initialize_menu_tools() {
       last_touch_y = e.touches[0].pageY
     })
     
-    window.addEventListener('touchup', () => {
+    window.addEventListener('touchend', () => {
       is_touching = false
     })
     
