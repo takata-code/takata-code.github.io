@@ -168,6 +168,12 @@ module.Project = class {
     
     this.directories[this.directories.indexOf(old)] = path
     
+    for (let i = 0; i < this.directories.length; i++) {
+      if (this.directories[i].startsWith(old)) {
+        this.directories[i] = this.directories[i].replace(old, path)
+      }
+    }
+    
     for (const file of this.files) {
       if (file.path.startsWith(old)) {
         file.path = file.path.replace(old, path)
