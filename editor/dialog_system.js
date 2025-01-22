@@ -11,6 +11,13 @@ export default class DS {
       dialog.style.borderColor = 'var(--error-color)'
     }
     
+    if (option.type == 'warning') {
+      dialog.style.borderColor = 'var(--warning-color)'
+    }
+    
+    if (option.type == 'info') {
+      dialog.style.borderColor = 'var(--info-color)'
+    }
     const content = document.createElement('div')
     content.className = 'dialog-content'
     dialog.appendChild(content)
@@ -230,29 +237,6 @@ export default class DS {
     
     ds.content.appendChild(input)
     
-    if (option.value) {
-      input.value = option.value
-    }
-    
-    // パス文字列のため、\ / * ? " < > | を禁止
-    function add_limit_for_path() {
-      input.addEventListener('input', () => {
-        input.value = input.value.replace(/[\\/:\*?"<>|]/, '')
-        
-        ok.hidden = input.value.length == 0
-      })
-      
-      input.addEventListener('paste', () => {
-        input.value = input.value.replace(/[\\/:\*?"<>|]/, '')
-        
-        ok.hidden = input.value.length == 0
-      })
-    }
-    
-    if (option.type == 'folder' || option.type == 'file') {
-      add_limit_for_path()
-    }
-    
     const ok = document.createElement('button')
     ok.innerText = 'OK'
     ds.footer.appendChild(ok)
@@ -260,6 +244,26 @@ export default class DS {
     const cancel = document.createElement('button')
     cancel.innerText = 'キャンセル'
     ds.footer.appendChild(cancel)
+    
+    // パス文字列のため、\ / * ? " < > | を禁止
+    function add_limit_for_path() {
+      input.addEventListener('input', update_state)
+      input.addEventListener('paste', update_state)
+    }
+    
+    function update_state() {
+      input.value = input.value.replace(/[\\/:\*?"<>|]/, '')
+        
+      ok.hidden = input.value.length == 0
+    }
+    
+    input.value = option.value || ''
+    
+    if (option.type == 'folder' || option.type == 'file') {
+      add_limit_for_path()
+      
+      update_state()
+    }
     
     ds.show_modal()
     

@@ -42,6 +42,18 @@ module.Generator = class {
         id: project.info.id,
         version: project.info.version
       }
+      
+      // meta
+      const meta = {}
+      for (const file of project.files) {
+        if (file.meta?.folds) {
+          meta[file.path] = {
+            folds: file.meta.folds
+          }
+        }
+      }
+      
+      project_info.meta = meta
     } else {
       project_info = {
         id: module.Generator.generate_project_id(),
@@ -70,7 +82,6 @@ module.Importer = class {
       try {
         return await module.Importer.import_zip(zip, option)
       } catch (e) {
-        alert(e)
         throw e
       }
     } catch (e) {
@@ -191,7 +202,19 @@ module.Importer = class {
         await tproject_file.load()
       }
       
-      project.info = JSON.parse(tproject_file.text)
+      const project_info = JSON.parse(tproject_file.text)
+      project.info = project_info
+      
+      // meta
+      const meta = project_info.meta
+      
+      if (meta) {
+        for (const path in meta) {
+          if (project.already_exists(path)) {
+            project.get_file(path).meta = meta[path]
+          }
+        }
+      }
       
       return project
     } catch(e) {
@@ -221,12 +244,16 @@ module.Exporter = class {
     
     for (const file of project.files) {
       if (file.path.endsWith('tproject')) {
-        if (options.delete_project_info) {
-          continue
-        }
+        continue
       }
       
       jszip.file(file.path, file.blob)
+    }
+    
+    // TPROJECT を生成するならば
+    if (!options.delete_project_info) {
+      const json = module.Generator.generate_tproject(project)
+      jszip.file(project.name + '.tproject', new Blob([json]))
     }
     
     let project_zip = await jszip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } })

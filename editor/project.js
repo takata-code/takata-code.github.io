@@ -91,6 +91,8 @@ module.File = class {
       case 'wav':
       case 'mp3':
         return { char: 'music_note', color: '#e0e0e0' }
+      case 'json':
+        return { char: 'data_object', color: '#cc5324' }
       case 'tproject':
         return { char: 'manufacturing', color: '#9c6dd6' }
       default:
@@ -122,19 +124,44 @@ module.Project = class {
     return this._files
   }
   
+  get_file(path) {
+    const file = this.files.find(f => f.path == path)
+    return file
+  }
+  
+  already_exists(path) {
+    if (path.endsWith('/')) {
+      return this.directories.some(d => d == path)
+    } else {
+      return this.files.some(f => f.path == path)
+    }
+  }
+  
   add_file(file) {
-    this._files.push(file)
+    if (this.already_exists(file.path)) {
+       return false
+    }
+    
+    this.files.push(file)
     this._make_directories()
+    
+    return true
   }
   
   change_file_name(old, name) {
-    const file = this.files.find(f => f.path == old)
+    const file = this.get_file(old)
     
     if (!file) {
       return false
     }
     
-    file.path = file.path.replace(/[^\/]+$/, name)
+    const new_path = file.path.replace(/[^\/]+$/, name)
+    
+    if (this.already_exists(new_path)) {
+      return false
+    }
+    
+    file.path = new_path
     
     this._make_directories()
     return true
@@ -154,6 +181,10 @@ module.Project = class {
   }
   
   add_folder(path) {
+    if (this.already_exists(path)) {
+      return false
+    }
+    
     this.directories.push(path)
     this._make_directories()
   }
@@ -163,6 +194,10 @@ module.Project = class {
     const path = old.replace(/[^\/]+\/$/, name + '/')
     
     if (!dir) {
+      return false
+    }
+    
+    if (this.already_exists(path)) {
       return false
     }
     
@@ -214,11 +249,6 @@ module.Project = class {
     this._make_directories()
     
     return true
-  }
-  
-  get_file(path) {
-    let file = this._files.find(f => f.path == file_path)
-    return file
   }
   
   get_directory(path) {
@@ -287,14 +317,14 @@ module.Project = class {
         file.code = file.text
         
         if (option.debug) {
-          if (!(file.type == 'text/javascript')) {
+          if (file.type != 'text/javascript') {
             continue
           }
           
           const debug_code = `
-import DS from 'https://takaon.net/editor/dialog_system${ '.' }js'
-addEventListener('error', (event, source, lineno, colno, error) => {
-  DS.alert(\`同期エラー:\\n\${ source }\`);
+addEventListener('error', event => {
+  const line_number = event.lineno ? ('Line ' + event.lineno) || 'Line unknown'
+  alert(\`同期エラー:\\nLine \${ event.lineno }: \${ error }\`);
   return true;
 });
 
@@ -302,7 +332,7 @@ addEventListener('unhandledrejection', (event) => {
   alert('非同期エラー:\\nevent.reason');
   return true;
 });
-          `//.replaceAll('\n', '')
+          `.replaceAll('\n', '')
           file.code = debug_code + file.code
         }
       }

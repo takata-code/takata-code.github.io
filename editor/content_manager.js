@@ -87,8 +87,13 @@ class DocumentContentManager extends ContentManager {
     this.content = this.create_content(file)
     
     const self = this
-    this.on_ace_editor_changed = () => {
+    
+    this.on_ace_editor_change = () => {
       self.text = ace_editor.getValue()
+      self.onchanged()
+    }
+    
+    this.on_ace_editor_change_fold = () => {
       self.onchanged()
     }
     
@@ -114,6 +119,7 @@ class DocumentContentManager extends ContentManager {
     // Ace Editor にかかわる情報
     this.ace_cursor = { row: 0, column: 0 }
     this.ace_scroll_top = 0
+    this.ace_fold_data = null
     this.ace_undo_mgr = new ace.UndoManager()
   }
   
@@ -144,7 +150,7 @@ class DocumentContentManager extends ContentManager {
     ace_editor.getSession().setUndoManager(new ace.UndoManager())
     ace_editor.setValue(this.text)
     
-    ace_editor.getSession().on('change', this.on_ace_editor_changed)
+    ace_editor.getSession().on('change', this.on_ace_editor_change)
     ace_editor.session.on('changeMode', this.on_ace_editor_change_mode)
     ace_editor.session.on('changeAnnotation', this.on_ace_editor_change_annotations)
     
@@ -157,6 +163,41 @@ class DocumentContentManager extends ContentManager {
     ace_editor.renderer.scrollToRow(this.ace_cursor.row)
     ace_editor.getSession().setScrollTop(this.ace_scroll_top)
     ace_editor.getSession().setUndoManager(this.ace_undo_mgr)
+    
+    const self = this
+    
+    // getFoldWidget != null まで待つ
+    let wait_for_fold_widget_count = 0
+    
+    function wait_for_fold_widget() {
+      return new Promise(resolve => {
+        const check_fold_widget = () => {
+          if (wait_for_fold_widget_count++ > 30) {
+            return
+          }
+          
+          if (ace_editor.getSession().getFoldWidget) {
+            resolve()
+            return
+          }
+          
+          requestAnimationFrame(check_fold_widget)
+        }
+        
+        check_fold_widget()
+      })
+    }
+    
+    wait_for_fold_widget().then(() => {
+      if (self.ace_fold_data) {
+        self.restore_folds(self.ace_fold_data)
+      } else if (self.target.meta?.folds) {
+        self.restore_folds(self.target.meta.folds)
+      }
+      
+      // 必要なものを折りたたんでからイベントをセット
+      ace_editor.getSession().on('changeFold', self.on_ace_editor_change_fold)
+    })
   }
   
   get_ace_editor_mode(type) {
@@ -171,11 +212,19 @@ class DocumentContentManager extends ContentManager {
   
   deactivate() {
     this.text = ace_editor.getValue()
-    ace_editor.getSession().removeListener('change', this.on_ace_editor_changed)
+    ace_editor.getSession().removeListener('change', this.on_ace_editor_change)
+    ace_editor.getSession().removeListener('changeFold', this.on_ace_editor_change_fold)
     ace_editor.getSession().removeListener('changeMode', this.on_ace_editor_change_mode)
     ace_editor.getSession().removeListener('changeAnnotation', this.on_ace_editor_change_annotations)
     this.ace_cursor = ace_editor.getCursorPosition()
     this.ace_scroll_top = ace_editor.getSession().getScrollTop()
+    this.ace_fold_data = ace_editor.getSession().$foldData.concat()
+  }
+  
+  restore_folds(folds) {
+    for (const fold of folds) {
+      ace_editor.getSession().$toggleFoldWidget(fold.start.row, {})
+    }
   }
   
   save() {
@@ -185,6 +234,26 @@ class DocumentContentManager extends ContentManager {
     
     this.target.blob = new Blob([this.text])
     this.target.text = this.text
+    this.target.meta = this.get_meta()
+  }
+  
+  get_meta() {
+    const ace_fold_data = ace_editor.getSession().$foldData.concat()
+    const meta = {}
+    
+    // 折りたたみ情報
+    if (ace_fold_data) {
+      meta.folds = []
+      
+      for (const ace_fold_line of ace_fold_data) {
+        meta.folds.push({
+          start: ace_fold_line.start,
+          end: ace_fold_line.end
+        })
+      }
+    }
+    
+    return meta
   }
 }
 

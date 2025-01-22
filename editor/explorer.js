@@ -16,14 +16,16 @@ async function file_detail_dropdown_open(dom) {
     case 0:
       const name = await DS.prompt('新しいファイル名を入力:', '', { type: 'file', value: Explorer.selected.name })
     
-    if (name) {
-      if (G.project.change_file_name(Explorer.selected.path, name) == false) {
-        DS.alert('正常に名前を変更できませんでした')
+      if (name) {
+        if (G.project.change_file_name(Explorer.selected.path, name)) {
+         Explorer.create(G.project)
+          Tab.update()
+        } else {
+          DS.alert(`${ name } は このフォルダ内に既に存在します`, '', { type: 'info' })
+        }
       }
-      Explorer.create(G.project)
-      Tab.update()
-    }
-    break
+      break
+    
     case 1:
       const ok = await DS.confirm(`${ Explorer.selected.path } を削除しますか？`, '削除したファイルは元に戻せません', '削除', 'キャンセル')
     
@@ -32,7 +34,7 @@ async function file_detail_dropdown_open(dom) {
       Explorer.create(G.project)
       
       if (!result) {
-        DS.alert('正常にファイルを削除できませんでした')
+        DS.alert('正常にファイルを削除できませんでした', '', { type: 'error' })
       }
       
       return
@@ -52,12 +54,15 @@ async function folder_detail_dropdown_open(dom) {
         const map = Explorer.get_folder_open_map(G.project)
         delete map[Explorer.selected.path]
         
-        if (G.project.change_folder_name(Explorer.selected.path, name) == false) {
-          DS.alert('正常に名前を変更できませんでした')
+        if (G.project.change_folder_name(Explorer.selected.path, name)) {
+          alert(Explorer.selected.path)
+          map[Explorer.selected.path] = path_to_dom_map[Explorer.selected.path].open
+          Explorer.create(G.project, map)
+          Tab.update()
+        } else {
+          DS.alert(`${ name } は このフォルダ内に既に存在します`, '', { type: 'info' })
         }
         
-        Explorer.create(G.project)
-        Tab.update()
       }
       
       break
@@ -70,7 +75,7 @@ async function folder_detail_dropdown_open(dom) {
         Explorer.create(G.project)
         
         if (!result) {
-          DS.alert('正常に削除できなかったようです' + result)
+          DS.alert('正常にフォルダを削除できませんでした' + result)
         }
         
         return
@@ -97,7 +102,7 @@ function initialize_add_item_dialog() {
   })
   
   dialog_folder.addEventListener('click', async () => {
-    const name = await DS.prompt('新しいフォルダ名を入力:', (Explorer.current.length == 0 ? 'ルートフォルダ' : Explorer.current) + ' 内に作成します')
+    const name = await DS.prompt('新しいフォルダ名を入力:', (Explorer.current.length == 0 ? 'ルートフォルダ' : Explorer.current) + ' 内に作成します', { type: 'folder' })
     
     if (name) {
       G.project.add_folder(Explorer.current + name + '/')
@@ -108,15 +113,21 @@ function initialize_add_item_dialog() {
   })
   
   dialog_new_file.addEventListener('click', async () => {
-    const name = await DS.prompt('新しいファイル名を入力:', (Explorer.current.length == 0 ? 'ルートフォルダ' : Explorer.current) + ' 内に作成します')
+    const name = await DS.prompt('新しいファイル名を入力:', (Explorer.current.length == 0 ? 'ルートフォルダ' : Explorer.current) + ' 内に作成します', { type: 'file' })
     
     if (!name) {
       return
     }
     
     const path = Explorer.current + name
-    G.project.add_file(new P.File(path, new Blob([''])))
-    Explorer.create(G.project)
+    const file = new P.File(path, new Blob(['']))
+    
+    if (G.project.add_file(file)) {
+      Explorer.create(G.project)
+    } else {
+      dialog_new_file.click()
+      DS.alert(`${ name } は このフォルダ内に既に存在します`, '', { type: 'info' })
+    }
   })
   
   dialog_load_file.addEventListener('click', async () => {
@@ -174,7 +185,7 @@ export default class Explorer {
   }
   
   static get current() {
-    const is_valid_directory_selected = Explorer.selected && Explorer.selected != G.project.root
+    const is_valid_directory_selected = Explorer.selected && (Explorer.selected != G.project.root)
     if (is_valid_directory_selected) {
       return Explorer.selected.path.replace(/[^\/]+$/, '')
     }
@@ -368,18 +379,3 @@ export default class Explorer {
     return map
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

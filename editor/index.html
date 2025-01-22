@@ -20,8 +20,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
   <!-- Ace editor -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.37.1/ace.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.37.1/ext-language_tools.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ext-language_tools.js"></script>
   
   <div class="main-container">
     <div class="menu">
@@ -110,6 +110,9 @@
         <div class="footer-indicator-unsaved">
           <span id="footer_indicator_unsaved_icon" class="footer-indicator-icon">check_circle</span>
           <span id="footer_indicator_unsaved_text" class="footer-indicator-text">すべて保存済み</span>
+          <div style="margin: 0 10px; width: 2px; height: 30px; background-color: var(--base-color-ll)"></div>
+          <input id="autosave_checkbox" type="checkbox" checked>
+          <label for="autosave_checkbox" checked>自動保存</label>
         </div>
       </div>
       <div id="footer_annotations" class="footer-annotations"></div>
@@ -145,7 +148,7 @@
         </div>
       </div>
       <div class="dialog-footer">
-        <p style="color: gray">Takaon Editor v0.0.0 Beta (2024/01/18)</p>
+        <p style="color: gray; text-align: right">Takaon Editor v0.0.0 (Beta)<br>2025/01/22</p>
       </div>
     </div>
   </dialog>

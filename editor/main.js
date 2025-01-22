@@ -356,8 +356,20 @@ function initialize_menu_project() {
     switch (i) {
       case 0:
         const name = await DS.prompt('新しいプロジェクト名を入力:', '', { type: 'folder', value: G.project.name })
-        G.project.name = name
-        Explorer.create(G.project)
+        
+        if (name) {
+          G.project.name = name
+          
+          // TPROJECT も名前を変更
+          const tproject = G.project.files.find(f => f.path.endsWith('tproject'))
+          if (tproject) {
+            G.project.change_file_name(tproject.path, name + '.tproject')
+          }
+          
+          Explorer.create(G.project)
+          save_project_data_to_local_storage()
+        }
+        
         break
       
       case 1:
@@ -365,17 +377,25 @@ function initialize_menu_project() {
         
         if (version) {
           G.project.info.version = version
+          save_project_data_to_local_storage()
         }
         
         break
       
       case 2:
-        const ok = await DS.confirm('プロジェクトのIDを再生成しますか？', '現在のID: ' + G.project.info.id + '\n\nIDは、ブラウザのローカルストレージにプロジェクトを保存する際の識別子として使用されています。\nこれを変更すると、現在ブラウザ上にあるこのプロジェクトに関するデータは復元できません。', '再生成する', 'キャンセル')
+        const ok = await DS.confirm('プロジェクトのIDを再生成しますか？',
+        `現在のID: ${ G.project.info.id }\n
+        IDは、ブラウザのローカルストレージにプロジェクトを保存する際の\
+        識別子として使用されています。\nこれを変更すると、現在ブラウザ上に\
+        あるこのプロジェクトに関するデータは復元できません。`,
+        '再生成する',
+        'キャンセル')
         
         if (ok) {
           const id = PIO.Generator.generate_project_id()
           G.project.info.id = id
           DS.alert('新しいID: ' + id, 'プロジェクトのIDを再生成しました')
+          save_project_data_to_local_storage()
         }
         break
     }
@@ -388,13 +408,29 @@ function initialize_menu_run() {
   const menu_debug = document.getElementById('menu_debug')
   
   menu_run.addEventListener('click', () => {
-    const is_debug = menu_debug.checked
+    const debug = menu_debug.checked
     
     try {
       const src = G.project.get_page_src({
-        debug: is_debug
+        debug: false
       })
-      window.open(src)
+      const player_window = window.open(src)
+      
+      if (debug) {
+        player_window.addEventListener('error', event => {
+          const line_number = event.lineno == null ? '' : ('Line ' + event.lineno)
+          
+          player_window.alert(`同期エラー:\n${ line_number }: ${ event.error }`)
+          
+          return true
+        })
+        
+        player_window.addEventListener('unhandledrejection', event => {
+          player_window.alert(`非同期エラー:\n${ event.reason }`)
+          
+          return true
+        })
+      }
     } catch {
       DS.alert('実行するには、 index' + '.html を用意してください。', 'ページを構築できません')
     }
@@ -518,7 +554,12 @@ function initialize_menu_tools() {
   }
   
   menu_tools.addEventListener('click', async () => {
-    const i = await DS.dropdown(menu_tools, ['カラーパレット', `記号キーボードを${ keyboard_enabled ? '非表示' : '表示' }`])
+    const selects = []
+    selects[0] = 'カラーパレット'
+    selects[1] = `記号キーボードを${ keyboard_enabled ? '非表示' : '表示' }`
+    
+    
+    const i = await DS.dropdown(menu_tools, selects)
     
     switch (i) {
       case 0:
@@ -536,6 +577,74 @@ function initialize_menu_tools() {
   })
 }
 initialize_menu_tools()
+
+function initialize_shortcuts() {
+  function add_event_to_click_element(judge_fn, id) {
+    window.addEventListener('keydown', e => {
+      if (!judge_fn(e)) {
+        return
+      }
+      
+      e.stopPropagation()
+      e.preventDefault()
+      
+      const element = document.getElementById(id)
+      element.click()
+    })
+  }
+  
+  // Ctrl + S: menu_save を押す
+  add_event_to_click_element(e => e.key.toLowerCase() == 's' && e.ctrlKey, 'menu_save')
+  
+  // Ctrl + Shift + S: menu_save_all を押す
+  add_event_to_click_element(e => e.key.toLowerCase() == 's' && e.ctrlKey && e.shiftKey, 'menu_save_all')
+  
+  // F5: menu_run を押す
+  add_event_to_click_element(e => e.key == 'F5', 'menu_run')
+}
+initialize_shortcuts()
+
+function initialize_autosave() {
+  const menu_save_all = document.getElementById('menu_save_all')
+  const menu_run = document.getElementById('menu_run')
+  
+  let timer_id = null
+  
+  function autosave() {
+    if (!G.project) {
+      return
+    }
+    
+    menu_save_all.click()
+  }
+  
+  function reserve_autosave() {
+    autosave()
+    menu_run.addEventListener('click', autosave)
+    // 100s 毎に
+    timer_id = setInterval(autosave, 100000)
+  }
+  
+  function cancel_autosave() {
+    clearInterval(timer_id)
+    menu_run.removeEventListener('click', autosave)
+  }
+  
+  const checkbox = document.getElementById('autosave_checkbox')
+  
+  if (checkbox.checked) {
+    reserve_autosave()
+  }
+  
+  checkbox.addEventListener('change', () => {
+    if (checkbox.checked) {
+      reserve_autosave()
+    } else {
+      cancel_autosave()
+    }
+  })
+}
+initialize_autosave()
 
 function initialize() {
   update_welcome_dialog()

@@ -83,9 +83,11 @@ export default class Footer {
       
       row.appendChild(icon)
       
+      const line_number = anno.row == null ? '' : `Line ${ anno.row + 1 }: `
+      
       const text = document.createElement('span')
       text.className = 'footer-annotations-text'
-      text.innerText = `${ anno.row ? 'Line ' + anno.row + ': ' : '' } ${ anno.text }`
+      text.innerHTML = `<span style="font-weight: bold">${ line_number }</span>${ anno.text }`
       row.appendChild(text)
       
       footer_annotations.appendChild(row)
