@@ -23,6 +23,8 @@ function initialize_ace_editor() {
     enableBasicAutocompletion: true,
     enableLiveAutocompletion : true,
     useSvgGutterIcons: true,
+    scrollPastEnd: 1,
+    showFoldedAnnotations: true
   })
   ace_editor.setTheme('ace/theme/tomorrow_night')
 }

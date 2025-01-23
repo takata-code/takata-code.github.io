@@ -99,12 +99,13 @@ function initialize_welcome_dialog() {
   const open_last = document.getElementById('welcome_dialog_open_last')
   const make_new = document.getElementById('welcome_dialog_new')
   const open_proj = document.getElementById('welcome_dialog_open')
+  const close = document.getElementById('welcome_dialog_close')
   
   const menu_load_dialog = document.getElementById('menu_load_dialog')
   
   const new_project_dialog = document.getElementById('new_project_dialog')
   
-  make_new.addEventListener('click', async () => {
+  make_new.addEventListener('click', () => {
     new_project_dialog.showModal()
     dialog.close()
   })
@@ -115,7 +116,7 @@ function initialize_welcome_dialog() {
     }
   })
   
-  open_proj.addEventListener('click', async () => {
+  open_proj.addEventListener('click', () => {
     dialog.close()
     menu_load_dialog.showModal()
     menu_load_dialog.parent = 'welcome'
@@ -129,6 +130,10 @@ function initialize_welcome_dialog() {
       }
     }
   })
+  
+  close.addEventListener('click', () => {
+    dialog.close()
+  })
 }
 initialize_welcome_dialog()
 
@@ -136,11 +141,18 @@ function update_welcome_dialog() {
   const dialog = document.getElementById('welcome_dialog')
   const open_last = document.getElementById('welcome_dialog_open_last')
   const open_last_title = document.getElementById('welcome_dialog_open_last_title')
+  const close = document.getElementById('welcome_dialog_close')
   
   const last_key = localStorage.getItem('project_last_id')
   const project_json = localStorage.getItem('project_' + last_key)
   
   open_last.hidden = true
+  close.hidden = true
+  
+  if (G.project) {
+    close.hidden = false
+    return
+  }
   
   if (project_json) {
     const project_obj = JSON.parse(project_json)
@@ -193,6 +205,18 @@ function initialize_explorer_and_footer_fold() {
   
 }
 initialize_explorer_and_footer_fold()
+
+function initialize_menu_home() {
+  const menu_home = document.getElementById('menu_welcome')
+  
+  const dialog = document.getElementById('welcome_dialog')
+  
+  menu_home.addEventListener('click', () => {
+    update_welcome_dialog()
+    dialog.showModal()
+  })
+}
+initialize_menu_home()
 
 function initialize_menu_undo_redo() {
   const menu_undo = document.getElementById('menu_undo')
@@ -407,7 +431,15 @@ function initialize_menu_run() {
   const menu_run = document.getElementById('menu_run')
   const menu_debug = document.getElementById('menu_debug')
   
+  const autosave_checkbox = document.getElementById('autosave_checkbox')
+  const menu_save_all = document.getElementById('menu_save_all')
+    
   menu_run.addEventListener('click', () => {
+    // 実行時に保存
+    if (autosave_checkbox.checked) {
+      menu_save_all.click()
+    }
+    
     const debug = menu_debug.checked
     
     try {
@@ -579,7 +611,7 @@ function initialize_menu_tools() {
 initialize_menu_tools()
 
 function initialize_shortcuts() {
-  function add_event_to_click_element(judge_fn, id) {
+  function add_event_to_click_element(judge_fn, process) {
     window.addEventListener('keydown', e => {
       if (!judge_fn(e)) {
         return
@@ -588,19 +620,31 @@ function initialize_shortcuts() {
       e.stopPropagation()
       e.preventDefault()
       
-      const element = document.getElementById(id)
-      element.click()
+      process()
     })
   }
   
   // Ctrl + S: menu_save を押す
-  add_event_to_click_element(e => e.key.toLowerCase() == 's' && e.ctrlKey, 'menu_save')
+  add_event_to_click_element(e => e.key.toLowerCase() == 's' && e.ctrlKey, () => document.getElementById('menu_save').click())
   
   // Ctrl + Shift + S: menu_save_all を押す
-  add_event_to_click_element(e => e.key.toLowerCase() == 's' && e.ctrlKey && e.shiftKey, 'menu_save_all')
+  add_event_to_click_element(e => e.key.toLowerCase() == 's' && e.ctrlKey && e.shiftKey, () => document.getElementById('menu_save_all').click())
   
   // F5: menu_run を押す
-  add_event_to_click_element(e => e.key == 'F5', 'menu_run')
+  add_event_to_click_element(e => e.key == 'F5', () => document.getElementById('menu_run').click())
+  
+  // F5: menu_run を押す
+  const set_theme = () => {
+      var head = document.head;
+  var linkElement = document.createElement("link");
+
+  linkElement.type = "text/css";
+  linkElement.rel = "stylesheet";
+  linkElement.href = "ace_editor.css";
+
+  head.appendChild(linkElement);
+  }
+  add_event_to_click_element(e => e.key == 'F8', set_theme)
 }
 initialize_shortcuts()
 
@@ -620,14 +664,13 @@ function initialize_autosave() {
   
   function reserve_autosave() {
     autosave()
-    menu_run.addEventListener('click', autosave)
+    
     // 100s 毎に
     timer_id = setInterval(autosave, 100000)
   }
   
   function cancel_autosave() {
     clearInterval(timer_id)
-    menu_run.removeEventListener('click', autosave)
   }
   
   const checkbox = document.getElementById('autosave_checkbox')

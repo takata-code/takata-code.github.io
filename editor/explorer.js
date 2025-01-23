@@ -219,7 +219,7 @@ export default class Explorer {
         folder.appendChild(row)
         
         const icon = document.createElement('span')
-        icon.innerText = 'keyboard_arrow_rightfolder'
+        icon.innerHTML = 'keyboard_arrow_right<span style="color:#71b2f0">folder</span>'
         icon.className = 'explorer-element-icon'
         const is_any_file = project.files.some(f => f.path.startsWith(element.path))
         if (is_any_file || project.root == element) {
@@ -245,7 +245,7 @@ export default class Explorer {
         action = async (skip_animation) => {
           folder.open = !folder.open
           
-          icon.innerText = folder.open ? 'keyboard_arrow_downfolder_open' : 'keyboard_arrow_rightfolder'
+          icon.innerHTML = folder.open ? 'keyboard_arrow_down<span style="color:#71b2f0">folder_open</span>' : 'keyboard_arrow_right<span style="color:#71b2f0">folder</span>'
           content.hidden = false
           
           if (!skip_animation) {
