@@ -29,7 +29,7 @@ body {
   
   --normal-font-size: 13px;
   --icon-font-size: 20px;
-  --code-font: JetBrains Mono;
+  --code-font: JetBrains Mono, '新ゴ R';
   
   --normal-font: Inter, '新ゴ R', sans-serif;
   --icon-font: Material Symbols Rounded;
