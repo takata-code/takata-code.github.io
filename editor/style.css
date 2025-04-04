@@ -31,7 +31,7 @@ body {
   --icon-font-size: 20px;
   --code-font: JetBrains Mono;
   
-  --normal-font: Inter, sans-serif;
+  --normal-font: Inter, '新ゴ R', sans-serif;
   --icon-font: Material Symbols Rounded;
   
   user-select: none;
@@ -171,7 +171,6 @@ textarea:focus {
 
 .dialog-title {
   font-size: 25px;
-  font-weight: bold;
 }
 
 .dialog-content {
@@ -243,7 +242,6 @@ button:focus {
 }
 
 button p {
-  font-weight: bold;
   font-size: 18px;
   margin: 0;
 }
