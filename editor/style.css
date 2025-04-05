@@ -29,9 +29,9 @@ body {
   
   --normal-font-size: 13px;
   --icon-font-size: 20px;
-  --code-font: JetBrains Mono, '新ゴ R';
+  --code-font: JetBrains Mono, '新ゴ R', 'BIZ UDPGothic';
   
-  --normal-font: Inter, '新ゴ R', sans-serif;
+  --normal-font: Inter, '新ゴ R', 'BIZ UDPGothic', sans-serif;
   --icon-font: Material Symbols Rounded;
   
   user-select: none;
