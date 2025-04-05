@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@500" rel="stylesheet">
+    <!-- End Google Fonts -->
+    
+    <!-- Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300,0..1,-50..200" />
+    <!-- End Material Symbols -->
+    
+    <!-- TypeSquare -->
+    <script type="text/javascript" src="//typesquare.com/3/tsst/script/ja/typesquare.js?67eea17b0f7440308f1539a4ac1e02e5" charset="utf-8"></script>
+    <!-- End TypeSquare -->
+    
+    <link rel="stylesheet" href="https://takaon.net/default.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="index.js" type="module"></script>
+    
+    <!-- Snap.svg -->
+    <script src="https://cdn.jsdelivr.net/npm/snapsvg@0.5.1/dist/snap.svg-min.min.js"></script>
+    <!-- End Snap.svg -->
+    
+    <!-- MathJax -->
+    <script>MathJax = { tex: { inlineMath: [], displayMath: [], processEscapes: false }, chtml: { displayAlign: 'left' } }</script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+    <!-- End MathJax -->
+  </head>
+  <body>
+    <div id="toolbar" class="toolbar">
+      <span style="font: 20px JetBrains Mono; gap: 0" class="toolbar-item">
+        <span style="color: var(--main-color)">T</span>akaon Chart
+      </span>
+      <!-- File Actions -->
+      <span id="toolbarFile" class="toolbar-item">
+        <span class="icon">ios_share</span>
+        チャートを共有
+      </span>
+      <!-- End File Actions -->
+      <span class="toolbar-split"></span>
+      <span id="toolbarCopy" class="icon toolbar-item">
+        content_copy
+      </span>
+      <span id="toolbarDelete" class="icon toolbar-item">
+        delete
+      </span>
+      <span class="toolbar-split"></span>
+      <span class="toolbar-item">
+        <input id="toolbarGridCheckbox" type="checkbox" class="checkbox" checked>
+        <span class="icon">apps</span>
+        <label for="toolbarGridCheckbox">グリッド</label>
+      </span>
+      <span class="toolbar-split"></span>
+      <span class="toolbar-item">
+        <input id="toolbarSnapCheckbox" type="checkbox" class="checkbox" checked>
+        <span class="icon">view_day</span>
+        <label for="toolbarSnapCheckbox">スナップ</label>
+      </span>
+    </div>
+    <div class="tab-container">
+      <div id="tabs" class="tabs"></div>
+      <div id="tabAddGroup" class="tab-add-group">
+        <span class="icon">add</span>
+      </div>
+    </div>
+    <div class="flowchart">
+      <div class="palette-container">
+        <div id="palette" class="palette"></div>
+      </div>
+      <div id="context" class="context" hidden>
+        <!-- Node Actions -->
+        <div id="contextNode" class="context-group">
+          <div class="context-header">ノード</div>
+          <div class="context-items">
+            <div class="context-item">
+               <span class="icon">format_color_fill</span>
+               塗色
+               <div id="contextNodeBackgroundColor" class="color-palette"></div>
+            </div>
+            <div class="context-item">
+              <input id="contextNodeStrokeCheckbox" type="checkbox" class="checkbox">
+              <label for="contextNodeStrokeCheckbox">枠線</label>
+            </div>
+          </div>
+        </div>
+        <!-- End Node Actions -->
+        <!-- Connector Actions -->
+        <div id="contextConnector" class="context-group">
+          <div class="context-items">
+            <div class="context-header">コネクタ</div>
+            <div class="context-item">
+              <input id="contextConnectorStartHeadCheckbox" type="checkbox" class="checkbox">
+              <label for="contextConnectorStartHeadCheckbox">開始地点の矢</label>
+            </div>
+            <div class="context-item">
+              <input id="contextConnectorEndHeadCheckbox" type="checkbox" class="checkbox">
+               <label for="contextConnectorEndHeadCheckbox">終端地点の矢</label>
+            </div>
+            <div class="context-item">
+              <button id="contextConnectorReverse">
+                <span class="icon">
+                  sync_alt
+                </span>
+                矢印を逆転
+              </button>
+            </div>
+            <div class="context-item">
+              <span class="icon">line_style</span>
+               <label class="context-item-name">
+                線スタイル
+              </label>
+              <select id="contextConnectorDashSelect">
+                <option value="false">実線</option>
+                <option value="true">点線</option>
+              </select>
+            </div>
+            <div class="context-item">
+              <span class="icon">line_weight</span>
+              <label class="context-item-name">
+                線の太さ
+              </label>
+              <select id="contextConnectorLineWeightSelect">
+                <option value="normal">標準</option>
+                <option value="bold">ボールド</option>
+              </select>
+            </div>
+            <div class="context-header">セグメント</div>
+            <div class="context-item">
+              <button id="contextConnectorAddPoint">
+                <span class="icon">polyline</span>
+                制御点を追加
+              </button>
+            </div>
+           <div class="context-header">制御点</div>
+            <div class="context-item">
+              <button id="contextConnectorDeletePoint">
+                <span class="icon">
+                  delete_forever
+                </span>
+                制御点を溶解/削除
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- End Connector Actions -->
+        <!-- Common Actions -->
+        <div class="context-group">
+          <div class="context-items">
+            <div class="context-header">グループ</div>
+            <div class="context-item">
+              <button id="contextCommonMoveToFront">
+                <span class="icon">arrow_drop_up</span>
+                順序を上ヘ
+              </button>
+            </div>
+            <div class="context-item">
+              <button id="contextCommonMoveToBack">
+                <span class="icon">arrow_drop_down</span>
+                順序を下へ
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- End Common Actions -->
+      </div>
+      <div id="flowchartArea" class="flowchart-area">
+        <div id="flowchartGrid" class="flowchart-grid"></div>
+        <div id="flowchartBack" class="flowchart-back"></div>
+        <div id="flowchartRect" class="flowchart-rect"></div>
+      </div>
+    </div>
+    <div class="footer">
+      <span class="footer-item">
+        <span class="icon">zoom_in</span>
+        <span id="footerScaleText">100%</span>
+      </span>
+      <span class="footer-split"></span>
+      <span class="footer-item">
+        <span class="icon">aspect_ratio</span>
+        <span style="width: 75px">
+          x:
+          <span id="footerXText">0</span>
+        </span>
+        <span style="width: 75px">
+          y:
+          <span id="footerYText">0</span>
+        </span>
+      </span>
+    </div>
+    <dialog id="shareUrlDialog" class="dialog">
+      <p>チャートのURLをシェア</p>
+      <div>
+        このURLを保存して、現在のチャートを開くことができます。<br>
+        その後に編集を加えた場合は、再度URLを取得してください。
+      </div>
+      <div class="copybox">
+        <div id="shareUrlDialogUrlCopy" class="icon">content_copy</div>
+        <textarea id="shareUrlDialogUrlTextarea" wrap="soft" readonly></textarea>
+      </div>
+      <button id="shareUrlDialogOk">OK</button>
+    </dialog>
+  </body>
+</html>

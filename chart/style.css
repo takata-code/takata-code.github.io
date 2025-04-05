@@ -1,0 +1,568 @@
+html {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  
+  overscroll-behavior: none;
+  
+  --icon-font: Material Symbols Rounded;
+  
+  --max-number: 100000000;
+  
+  --base-color: #ffffff;
+  --element-color: #f0f0f0;
+  --selected-color: #0084e1;
+  --split-color: #cccccc;
+  --icon-color: #606060;
+  --icon-color-hover: #aaaaaa;
+  --field-color: #fafafa;
+  --text-color: #333333;
+  --main-color: #19b300;
+  --grass-color: #ffffffaa;
+  
+  color: var(--text-color);
+  
+  --flowchart-font: 'JetBrains Mono', 'Noto Sans JP', '新ゴ R';
+  
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  user-select: none;
+  box-sizing: border-box;
+  
+  line-height: 25px;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--base-color);
+}
+
+span {
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+  touch-action: none;
+  user-select: none;
+}
+
+div {
+  margin: 0;
+  padding: 0;
+}
+
+button, select {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100%);
+  height: 20px;
+  margin: 0 5px;
+  border: 1px solid var(--split-color);
+  border-radius: 5px;
+  background: var(--field-color);
+  text-align: center;
+  text-align-last: center;
+}
+
+input[type=text] a {
+  box-sizing: border-box;
+  border: 2px solid var(--base-color-light-light);
+  border-radius: 5px;
+  background: var(--base-color-light);
+}
+
+.checkbox {
+  appearance: none;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: var(--field-color);
+}
+
+.checkbox::before {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font: 24px var(--icon-font);
+  color: var(--icon-color);
+  content: 'check_box_outline_blank';
+}
+
+.checkbox:checked::after {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font: 24px var(--icon-font);
+  text-stroke: 1px var(--main-color);
+  -webkit-text-stroke: 1px var(--main-color);
+  color: var(--main-color);
+  content: 'check_small';
+}
+
+.icon {
+  font: 24px Material Symbols Rounded;
+  color: var(--icon-color);
+}
+
+.color-palette {
+  display: flex;
+  gap: 10px;
+  margin: 0 10px;
+}
+
+.color-palette div {
+  width: 20px;
+  height: 20px;
+  border-radius: 15px;
+  border: 1px solid var(--icon-color);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 1px solid var(--split-color);
+  height: 40px;
+}
+
+.toolbar-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+  box-sizing: border;
+  padding: 10px;
+  color: var(--icon-color);
+}
+
+.toolbar-split {
+  border-radius: 0.5px;
+  width: 1px;
+  height: calc(100% - 10px);
+  margin: 0 5px;
+  background: var(--split-color);
+}
+
+.tab-container {
+  display: flex;
+  width: 100%;
+  height: 40px;
+  padding-top: 5px;
+  border-bottom: 1px solid var(--split-color);
+  background: var(--element-color);
+}
+
+.tabs {
+  display: flex;
+  height: 35px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 100px;
+  margin: 0 5px;
+  padding: 0 10px;
+  border: 1px solid var(--split-color);
+  border-radius: 5px 5px 0 0;
+  background: var(--field-color);
+}
+
+.tab-selected {
+  border-color: var(--main-color);
+  border-bottom: none;
+  font-weight: bold;
+  background: var(--base-color);
+}
+
+.tab-add-group {
+  
+}
+
+.palette-container {
+  z-index: var(--max-number);
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: calc(200px - 10px);
+  height: calc(100% - 10px);
+  border: 1px solid var(--split-color);
+  border-radius: 10px;
+  background: var(--grass-color);
+  backdrop-filter: blur(5px);
+  box-shadow: #00000088 0 0 5px;
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  height: 100%;
+}
+
+.palette div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #404040;
+  box-sizing: border-box;
+}
+
+.palette div svg {
+  position: absolute;
+  overflow: unset;
+}
+
+.palette div label {
+  z-index: var(--max-number);
+  background: white;
+  color: black;
+}
+
+.context {
+  z-index: 1000000;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  min-width: 300px;
+  padding: 10px;
+  border: 1px solid var(--split-color);
+  border-radius: 10px;
+  background: var(--grass-color);
+  backdrop-filter: blur(5px);
+  box-shadow: #00000088 0 0 5px;
+}
+
+.context-group {
+  
+}
+
+.context-header {
+  border-bottom: 1px solid var(--split-color)
+}
+
+.context-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.context-item {
+  display: flex;
+  align-items: center;
+}
+
+.context-item-name {
+  width: 120px;
+}
+
+@keyframes flowchart-selected-animation {
+  0% {
+    outline: 2px solid transparent;
+  }
+  
+  50% {
+    outline: 2px solid var(--selected-color);
+  }
+  
+  100% {
+    outline: 2px solid transparent;
+  }
+}
+
+.flowchart {
+  position: relative;
+  width: 100%;
+  height: calc(100% - 120px);
+  font-family: var(--flowchart-font);
+}
+
+.flowchart-area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: white;
+}
+
+.flowchart-grid {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10000px;
+  height: 10000px;
+  transform-origin: 0 0;
+  background-image: url(https://takaon.net/chart/grid.svg)
+}
+
+.flowchart-back {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.flowchart-rect {
+  position: absolute;
+  transform-origin: 0 0;
+  background: white;
+}
+
+.flowchart-node {
+  touch-action: none;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flowchart-node-selected {
+  
+}
+
+.flowchart-node-selected::before {
+  z-index: var(--max-number);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  outline: 2px solid var(--selected-color);
+  content: '';
+}
+
+.flowchart-node-shape {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.flowchart-node-text {
+  z-index: var(--max-number);
+  background: transparent;
+  color: black;
+  text-align: center;
+}
+
+.flowchart-node-editable {
+  z-index: var(--max-number);
+  min-width: 10px;
+  max-width: 100%;
+  color: var(--text-color);
+  text-align: center;
+  border-radius: 2px;
+  outline: 1px solid #0060fd80;
+  background: #0060fd10;
+}
+
+.flowchart-node-control {
+  pointer-events: none;
+  z-index: var(--max-number);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.flowchart-node-grab {
+  pointer-events: auto;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--base-color);
+  border: 2px solid var(--selected-color);
+}
+
+.flowchart-node-sizer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-width: 80px;
+  height: 30px;
+  border: 1px solid var(--split-color);
+  border-radius: 5px;
+  background: var(--element-color);
+  transform: translate(-50%, -50%);
+}
+
+.flowchart-connector {
+  touch-action: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.flowchart-connector svg {
+  overflow: unset;
+  position: absolute;
+}
+
+.flowchart-connector-control {
+  z-index: var(--max-number);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.flowchart-connector-grab {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--base-color);
+  border: 2px solid var(--selected-color);
+}
+
+.flowchart-connector-grab-selected {
+  animation: flowchart-selected-animation 1s ease-in-out infinite;
+}
+
+.flowchart-connector-grab-snap {
+  background: yellow;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-top: 1px solid var(--split-color);
+  height: 40px;
+  background: var(--element-color);
+}
+
+.footer-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border;
+  padding: 10px;
+}
+
+.footer-split {
+  border-radius: 1px;
+  width: 2px;
+  height: calc(100% - 10px);
+  margin: 0 5px;
+  background: var(--base-color-light-light);
+}
+
+.dropdown {
+  z-index: var(--max-number);
+  position: absolute;
+  left: 0;
+  margin: 0 10px;
+  padding: 5px 10px;
+  border: 1px solid var(--split-color);
+  border-radius: 5px;
+  background: var(--grass-color);
+  backdrop-filter: blur(5px);
+  box-shadow: #00000088 0 0 5px;
+}
+
+.dropdown div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 150px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+}
+
+.dropdown div:hover {
+  border: 1px solid var(--split-color);
+  background: var(--element-color);
+}
+
+.dropdown-back {
+  z-index: var(--max-number);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+}
+
+.dialog {
+  padding: 20px;
+  border: 1px solid var(--split-color);
+  border-radius: 10px;
+  background: var(--element-color);
+}
+
+.dialog p {
+  font-size: 20px;
+}
+
+.dialog:focus {
+  outline: none;
+}
+
+.copybox {
+  position: relative;
+  width: 500px;
+  height: 350px;
+  margin: 10px 0;
+  border: 1px solid var(--split-color);
+  border-radius: 5px;
+  background: var(--field-color);
+}
+
+.copybox div {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.copybox textarea {
+  position: absolute;
+  top: 30px;
+  width: 100%;
+  height: calc(100% - 50px);
+  padding: 0 20px;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--text-color);
+}
+
+.dialog button {
+  width: 100px;
+  height: 40px;
+  margin: auto 0 auto auto;
+}
