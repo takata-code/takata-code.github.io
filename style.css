@@ -33,18 +33,24 @@ body {
   position: absolute;
   top: 60px;
   left: 0;
+  width: 100%;
 }
 
-.content .project {
-  position: absolute;
-  left: 0;
+.project {
   box-sizing: border-box;
-  padding: 40px;
-  width: 100vw;
-  height: 40vw;
   margin: 0;
+  padding: 40px;
+  width: 100%;
+  height: 500px;
   color: var(--base-color);
-  background: linear-gradient(to bottom right, var(--main-color-dd), var(--main-color));
+}
+
+.project-editor {
+  background: linear-gradient(to bottom right, #023535, #008f8c);
+}
+
+.project-chart {
+  background: linear-gradient(to bottom right, #008803, #1d521e);
 }
 
 .content h2 {
