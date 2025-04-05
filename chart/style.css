@@ -182,7 +182,6 @@ input[type=text] a {
 .tab-selected {
   border-color: var(--main-color);
   border-bottom: none;
-  font-weight: bold;
   background: var(--base-color);
 }
 
