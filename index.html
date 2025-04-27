@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Takaon - プログラミングに役立つツール</title>
+    <title>Takaon.net</title>
     <meta name="description" content="ブラウザで Takaon Editor を使用すれば、ソースファイルの編集、JavaScriptの実行などができます。">
     <meta charset="utf-8">
   
@@ -11,29 +11,60 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="default.css">
     <link rel="stylesheet" href="style.css">
+    
+    <script src="index.js" type="module"></script>
   </head>
   <body>
     <div class="header">
-      <div class="header-title">
-        <span style="color: var(--main-color)">T</span>akaon Web Tools</div>
+      <span class="header-title">
+        <span style="color: var(--main-color)">T</span>akaon Web Tools
+      </span>
     </div>
     <div class="content">
       <div class="project project-editor">
-        <h2>Takaon Editor</h2>
-        <p>ソースファイルを自由に編集し、<br>
-          JavaScriptをブラウザ環境ですぐに実行。</p>
-        <a href="/editor">開始</a>
+        <img src="editor.png" class="project-editor-image">
+        <div class="project-title">Takaon Editor</div>
+        <div class="project-description">
+          ソースファイルを自由に編集し、<br>
+          JavaScriptをブラウザ環境ですぐに実行。
+        </div>
+        <button id="projectEditorGetStarted" class="project-button">コードを書き始める</button>
       </div>
       <div class="project project-chart">
-        <h2>Takaon Chart</h2>
-        <p>シンプルなフローチャート作成ツール<br>
-          保存URLの作成やSVG書き出しで、すぐに共有。</p>
-        <a href="/chart">開始</a>
+        <div class="project-title">Takaon Chart</div>
+        <div class="project-description">
+          シンプルなフローチャート作成ツール<br>
+          保存URLの作成やSVG書き出しで、すぐに共有。
+        </div>
+        <button id="projectChartGetStarted" class="project-button">チャートをつくる</button>
       </div>
+      <div class="about-editor">
+        <h2>Takaon Editor</h2>
+        <img src="editor.png">
+        <div>
+          ブラウザ上でHTML•CSS•JavaScriptコードを書き、
+          実際にページを起動することができるWebエディタです。
+          高性能なブラウザベースのコードエディタ<a>Ace</a>を組み込んでいるため、
+          パワフルな編集機能を使用できます。
+        </div>
+        <div class="about-tip">
+          <h3>Webページを実行する仕組み</h3>
+          <div>
+            <div>ソースコードやファイルをブラウザ側で一時的なURLに変換して、
+            オフラインで開きます。そのため、画像ファイルなどを
+            実際のWebページと同じ記法で扱うことが可能です。
+            完成したページをそのままサーバにアップロードすれば、
+            ページを公開できます。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Takaon.net</span>
     </div>
   </body>
 </html>
