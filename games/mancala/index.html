@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" type="module"></script>
+  </head>
+  <body>
+    <div id="title_wrapper" class="main-wrapper title-wrapper">
+      <div class="title-flex">
+        <h1>マンカラ</h1>
+        <div class="title-select">
+          <span>人数</span>
+          <select id="title_players_select">
+            <option value="2" selected>2人</option>
+            <option value="3">3人</option>
+            <option value="4">4人</option>
+            <option value="5">5人</option>
+            <option value="6">6人</option>
+          </select>
+        </div>
+        <div class="title-select">
+          <span>大きさ</span>
+          <select id="title_term_select">
+            <option value="3">最小 (ひとり3ポケット)</option>
+            <option value="5">小さめ (ひとり5ポケット)</option>
+            <option value="7" selected>ふつう (ひとり7ポケット)</option>
+            <option value="9">大きめ (ひとり9ポケット)</option>
+          </select>
+        </div>
+        <div id="title_start" class="wooden-box">スタート！</div>
+      </div>
+    </div>
+    <div id="game_wrapper" class="main-wrapper" hidden>
+      <canvas id="canvas" class="canvas"></canvas>
+      
+      <!-- canvas と位置を同期させるもの -->
+      <div id="canvas_wrapper" class="canvas-wrapper">
+        <div id="stones"></div>
+        <div id="pocket_numbers" class="pocket-numbers"></div>
+        <div id="kokomade" class="kokomade" hidden>ここまで</div>
+        <div id="happen_message" class="happen-message-wrapper" hidden>
+          <div id="happen_message_label" class="happen-message"></div>
+        </div>
+      </div>
+      
+      <!-- 現在のターン表示 -->
+      <div id="present" class="present">
+        <div id="present_icon" class="present-icon"></div>
+        <div id="present_label" class="present-label"></div>
+      </div>
+      
+      <!-- パスボタン -->
+      <div id="pass" class="pass" hidden>パス</div>
+      
+      <!-- パス 横取り もう1回 の表示 -->
+      <div id="event_popup" class="overlay event-popup" hidden>
+        <div id="event_popup_content" class="event-popup-content">
+          <div class="event-popup-header">
+            <div id="event_popup_icon" class="event-popup-icon"></div>
+            <span id="event_popup_label" class="event-popup-label">ああああ</span>
+          </div>
+          <div id="event_popup_description"></div>
+        </div>
+      </div>
+      <div id="ranking" class="overlay ranking" hidden>
+        <div class="ranking-content">
+          <div class="ranking-header">ランキング</div>
+          <div id="ranking_rows"></div>
+          <div id="ranking_to_title" class="wooden-box">タイトルへもどる</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
