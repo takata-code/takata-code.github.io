@@ -4,7 +4,6 @@ export default class Seed {
     this.term = term
     this.seeds_number = seeds_number
     
-    //if(this.term % 2 === 1) throw new Error("term must be even")
     this.length = this.term * this.players_number
     
     this.seeds_total = this.players_number * this.seeds_number * (this.term - 1)
@@ -20,6 +19,11 @@ export default class Seed {
   set_stage() {
     this.stage = Array(this.length).fill(this.seeds_number)
     for(let i = 0; i < this.players_number; i++) this.stage[(i + 1) * this.term - 1] = 0
+    /*
+    for (let i = 0; i < this.term - 1; i++) {
+      this.stage[i] =[21,13,8,5,3,2,1,1][i]
+    }
+    */
   }
   
   // stage[id]から種をまき、返り値はターンの進行の有無
@@ -55,6 +59,8 @@ export default class Seed {
   
   // 発生するイベントをフラグにしてobjectで返す
   what_event(id, final, present = this.present) {
+    final = this.get_clamped_id(final)
+    
     const result = {}
     const ower_final = this.get_player_id(final)
     
@@ -68,7 +74,16 @@ export default class Seed {
   
   // stage[id]の属するplayerのidを返す
   get_player_id(id) {
+    id = this.get_clamped_id(id)
     return Math.floor((id % this.length) / this.term)
+  }
+  
+  get_clamped_id(id) {
+    if (0 <= id && id < this.length) return id
+    
+    const mod = id % this.length
+    const clamped = mod >= 0 ? mod : mod + this.length
+    return clamped
   }
   
   // stageのidを指定して種を横取り

@@ -48,6 +48,9 @@ let happen = null // 先行表示データ
 let stones_list = [] // 石のDOM要素をポケットごとに保存した2次元リスト
 let is_canvas_dblclick_processing = false // 非同期処理のダブり対策のフラグ
 
+// 機能フラグ
+let text_turning_enabled = false
+
 main()
 
 // 一度だけ呼び出される
@@ -185,6 +188,17 @@ function initialize_ui() {
     draw()
   })
   
+  text_turning_checkbox.addEventListener("change", () => {
+    text_turning_enabled = text_turning_checkbox.checked
+    
+    initialize_text_turning()
+  })
+  
+  text_turning_button.addEventListener("click", () => {
+    text_turning_checkbox.checked = !text_turning_checkbox.checked
+    text_turning_checkbox.dispatchEvent(new Event("change"))
+  })
+  
   ranking_to_title.addEventListener("click", () => {
     back_to_title()
   })
@@ -239,14 +253,46 @@ function initialize_pocket_numbers() {
     
     const pocket_number = document.createElement("div")
     pocket_number.className = "pocket-number"
-    pocket_number.style.left = `${ c.rx * 100 }%`
-    pocket_number.style.top = `${ (c.ry + c.rradius) * 100 }%`
     pocket_number.style.fontWeight = i % term == term - 1 ? 800 : 600
+    
+    if (text_turning_enabled) {
+      const angle = get_player_angle(seed.get_player_id(i))
+      
+      pocket_number.style.left = `${ (c.rx - Math.sin(angle) * c.rradius * 0.8) * 100 }%`
+      pocket_number.style.top = `${ (c.ry + Math.cos(angle) * c.rradius * 0.8) * 100 }%`
+      
+      pocket_number.style.transform = `translate(-50%, -50%) rotate(${ angle }rad)`
+    } else {
+      pocket_number.style.left = `${ c.rx * 100 }%`
+      pocket_number.style.top = `${ (c.ry + c.rradius * 0.8) * 100 }%`
+      pocket_number.style.transform = "translate(-50%, -50%)"
+    }
+    
     dom_pocket_numbers.appendChild(pocket_number)
+  }
+  
+  update_canvas()
+}
+
+function initialize_text_turning() {
+  initialize_pocket_numbers()
+  set_text_turning(seed.present)
+}
+
+function set_text_turning(player_id) {
+  // 文字を回転させる
+  if (text_turning_enabled) {
+    happen_message.style.transform = `translate(-50%, -50%) rotate(${ get_player_angle(player_id) }rad)`
+    kokomade.style.transform = `translate(-50%, -50%) rotate(${ get_player_angle(player_id) }rad)`
+  } else {
+    happen_message.style.transform = "translate(-50%, -50%)"
+    kokomade.style.transform = `translate(-50%, -50%)`
   }
 }
 
 function on_canvas_click(e) {
+  if (is_canvas_dblclick_processing) return
+  
   // キャンバス座標を取得
   const x = e.offsetX * canvas_width / canvas_style_width
   const y = e.offsetY * canvas_height / canvas_style_height
@@ -278,13 +324,15 @@ function set_stone_info(circle_id) {
   const stones    = seed.stage[circle_id]
   
   const base = [circle_id, final]
-  const beside = seed.get_beside(circle_id)
+  const beside = seed.get_beside(final)
   
   const display = (text, highlights) => {
     const happen = { player_id }
     happen.highlights = highlights
     happen.status = text
     set_happen(happen)
+    
+    set_text_turning(player_id)
     
     draw()
   }
@@ -302,7 +350,7 @@ function set_stone_info(circle_id) {
 
 function set_happen(h) {
   if (h) {
-    if (h.highlights.length == 2) {
+    if (h.highlights.length >= 2) {
       const circle = circles[h.highlights[1]]
       kokomade.style.left = `${ circle.rx * 100 }%`
       kokomade.style.top = `${ circle.ry * 100 }%`
@@ -416,7 +464,7 @@ async function pick(pick_index) {
     while (get_pass_required()) {
       await show_event_popup(seed.present, "パス", "動かせる石がありません")
       
-      seed.present = (seed.present + 1) % players_number
+      seed.shift_turn()
       draw()
     }
   }
@@ -673,31 +721,11 @@ function draw() {
   ctx.stroke()
   
   if (happen) {
-    draw_beside_line(happen.highlights[0])
+    if (happen.highlights.length >= 2) {
+      draw_beside_line(happen.highlights[0], true)
+      draw_beside_line(happen.highlights[1], false)
+    }
   }
-  
-  /*
-  // 先行評価を表示
-  if (happen) { 
-    const text_length = happen.status.length
-    ctx.font = `bold ${ canvas_height * 0.05 }px Noto Sans JP`
-    ctx.fillStyle = '#000000'
-    ctx.strokeStyle = '#ffffff80'
-    ctx.lineWidth = 1.3
-    
-    ctx.strokeText(happen.status, canvas_width * 0.3, canvas_height * 0.07)
-    ctx.fillText(happen.status, canvas_width * 0.3, canvas_height * 0.07)
-    
-    ctx.strokeStyle = player_colors[happen.player_id]
-    
-    ctx.lineWidth = 4
-    
-    ctx.beginPath()
-    ctx.moveTo(canvas_width * 0.3, canvas_height * 0.08)
-    ctx.lineTo(canvas_width * 0.3 + text_length * canvas_height * 0.05, canvas_height * 0.08)
-    ctx.stroke()
-  }
-  */
   
   for (let i = 0; i < seed.stage.length; i++) {
     const circle = circles[i]
@@ -749,23 +777,23 @@ function draw() {
 }
 
 // player_index のプレイヤーが横取りできるorされる線を描画する
-function draw_beside_line(pocket_id) {
+function draw_beside_line(pocket_id, is_dash) {
   ctx.strokeStyle = '#00000088'
+  
+  if (is_dash) {
+    ctx.lineWidth = get_radius() * 0.05
+    ctx.setLineDash([5, 8])
+  } else {
+    ctx.lineWidth = get_radius() * 0.05
+    ctx.setLineDash([])
+  }
+  
+  ctx.lineWidth = get_radius() * 0.1
   
   for (let i = 0; i < seed.stage.length; i++) {
     const beside = seed.get_beside(i)
     
-    if (i == pocket_id) {
-      // 横取りするとき
-      ctx.lineWidth = get_radius() * 0.1
-      ctx.setLineDash([])
-    } else if (beside == pocket_id) {
-      // 横取りされるとき
-      ctx.lineWidth = get_radius() * 0.05
-      ctx.setLineDash([5, 8])
-    } else {
-      continue
-    }
+    if (i != pocket_id) continue
     
     const a = circles[i]
     const b = circles[beside]
@@ -972,6 +1000,20 @@ function get_normalized_point(i) {
   }
   
   return point_normalized
+}
+
+function get_pocket_angle(i) {
+  return get_player_angle(seed.get_player_id(i))
+}
+
+function get_player_angle(player_id) {
+  if (players_number == 2) {
+    return player_id == 1 ? 0 : Math.PI
+  } else if (players_number == 4) {
+    return ((player_id + 1) * Math.PI / 2) % (Math.PI * 2)
+  } else {
+    return Math.PI * 2 / players_number * (player_id + 0.5) + Math.PI
+  }
 }
 
 async function show_event_popup(player_id, text, description = "") {

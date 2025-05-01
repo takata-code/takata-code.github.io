@@ -89,6 +89,14 @@ h1 {
   box-shadow: 0 0px 10px 0 #000000;
 }
 
+.version {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-weight: normal;
+  color: #ffffff88;
+}
+
 .game-wrapper {
   
 }
@@ -126,8 +134,9 @@ h1 {
 }
 
 .pocket-number {
+  z-index: 1000000000;
   position: absolute;
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, -50%);
   -webkit-text-stroke: 3px white;
   text-stroke: 3px white;
   paint-order: stroke;
@@ -155,16 +164,6 @@ h1 {
   animation: kokomade-fade 1s ease-in-out infinite alternate;
 }
 
-@keyframes happen-fade {
-	0% {
-	  transform: translate(-50%, -50%) scale(0.975);
-	}
-	100% {
-	  transform: translate(-50%, -50%) scale(1.0);
-		opacity: 1;
-	}
-}
-
 .happen-message-wrapper {
   position: absolute;
   left: 50%;
@@ -176,6 +175,7 @@ h1 {
   border-radius: 10px;
   font-size: 80%;
   background: #ffffffaa;
+  transform: translate(-50%, -50%);
   transform-origin: 50% 50%;
   box-shadow: 0 0px 10px 0 #00000088;
   animation: happen-fade 1s ease-in-out infinite alternate;
@@ -220,28 +220,6 @@ h1 {
   
 }
 
-/*
-.pass {
-  background-color: #ffcca6;
-  position: absolute;
-  left: 5%;
-  top: 50%;
-  font-size: 1.6rem;
-  font-weight: 700;
-  line-height: 1.5;
-  display: inline-block;
-  padding: 1rem 0.5rem;
-  cursor: pointer;
-  text-align: center;
-  vertical-align: middle;
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  color: #212529;
-  border-radius: 100vh;
-  border: 3px solid black;
-}
-*/
-
 .pass {
   position: absolute;
   right: 10px;
@@ -252,6 +230,22 @@ h1 {
   background: #ffffffaa;
   box-shadow: 0 0px 25px 0 #00000088;
   outline: thin solid white;
+}
+
+.game-options {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 20px;
+  font-size: 15px;
+  color: #f0f0f0;
+  background: #00000055;
+}
+
+.game-options div * {
+  pointer-events: none;
 }
 
 .overlay {
