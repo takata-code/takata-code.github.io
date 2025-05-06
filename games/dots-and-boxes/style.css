@@ -1,0 +1,284 @@
+html {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overscroll-behavior: none;
+  font: bold 20px Noto Sans JP, sans-serif;
+  color: #333333;
+  
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+body {
+  
+}
+
+.main-wrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.loading-wrapper {
+  background: #f0f0f0;
+}
+
+.loading-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 50px;
+}
+
+.loading-description {
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+.title-wrapper {
+  background-image: url("resources/background.png");
+  background-size: cover;
+}
+
+.title-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.logo {
+  width: 450px;
+  height: 300px;
+  margin-bottom: 50px;
+}
+
+.title-select {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  margin: 10px;
+  padding: 10px;
+  width: 400px;
+  border-radius: 100px;
+  background: #00000020;
+  color: #333333;
+}
+
+.title-select span {
+  margin: 0 10px;
+  width: 100px;
+  font-size: 80%;
+  text-shadow: 0 0 8px #ffffff;
+}
+
+.title-select select {
+  all: unset;
+  position: absolute;
+  right: 10px;
+  display: inline-block;
+  width: 300px;
+  border-radius: 100px;
+  background: #ffffff40;
+  text-align-last: center;
+  text-shadow: 0 0 8px #ffffff;
+}
+
+.wooden-box {
+  margin: 10px;
+  padding: 10px;
+  width: 400px;
+  border: 3px solid #ffffff88;
+  border-radius: 100px;
+  background: #05a39b;
+  color: #f0f0f0;
+  text-align-last: center;
+  text-shadow: none;
+  box-shadow: 0 0px 10px 0 #000000;
+}
+
+.version {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-weight: normal;
+  color: #00000088;
+}
+
+.game-wrapper {
+  background-image: url("resources/background.png");
+  object-fit: fill;
+}
+
+.canvas-wrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(100% - 100px);
+  height: calc(100% - 100px);
+  margin: 50px;
+}
+
+.canvas-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border: thin solid white;
+  transform: translate(-50%, -50%);
+  background-image: url("resources/paper.png");
+  box-shadow: 0 0 15px 0 #00000088;
+}
+
+.canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes selected-line-box-fade {
+	0% {
+		opacity: 0.1;
+	}
+	100% {
+		opacity: 0.5;
+	}
+}
+
+.selected-line-box {
+  position: absolute;
+  box-sizing: border-box;
+  opacity: 0.3;
+  animation: selected-line-box-fade 0.5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.present {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 200px;
+  border-bottom: 3px solid;
+  transform: translate(-50%, 0);
+  font-size: 25px;
+}
+
+.present-label {
+  
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #00000060;
+}
+
+.event-popup-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 15px;
+  transform-origin: 50% 50%;
+  color: #f0f0f0;
+  font-weight: 600;
+  text-shadow: 0 0 5px #000000;
+}
+
+.event-popup-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.event-popup-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background: red;
+  box-shadow: 0 0 15px 0 #00000088;
+}
+
+.event-popup-label {
+  font-weight: 800;
+  font-size: 50px;
+  text-shadow: 0 0 15px #00000088;
+}
+
+.ranking {
+  background: #000000aa;
+}
+
+.ranking-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  height: 100%;
+  color: #f0f0f0;
+  text-shadow: 0 0 20px #000000;
+}
+
+.ranking-header {
+  width: 500px;
+  font-size: 30px;
+  text-align: center;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.ranking-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 500px;
+}
+
+.ranking-crown {
+  width: 60px;
+  font: 50px Material Symbols Outlined;
+}
+
+.ranking-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: red;
+}
+
+.ranking-label {
+  font-size: 40px;
+}
+
+.ranking-points {
+  font-size: 30px;
+  width: 100px;
+  text-align: right;
+}
+
+.ranking-points::after {
+  font-size: 20px;
+  color: #aaaaaa;
+  content: 'pt';
+}

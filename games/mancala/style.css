@@ -1,0 +1,350 @@
+html {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overscroll-behavior: none;
+  font: bold 20px Noto Sans JP, sans-serif;
+  color: #333333;
+  
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.main-wrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.title-wrapper {
+  background-image: url("resources/background.png");
+  background-size: cover;
+}
+
+.title-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+h1 {
+  margin: 0 0 40px 0;
+  font-size: 80px;
+  color: #f0f0f0;
+  text-shadow: 0 0 15px #000000;
+}
+
+.title-select {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  margin: 10px;
+  padding: 10px;
+  width: 400px;
+  border-radius: 100px;
+  background: #00000040;
+  color: #f0f0f0;
+}
+
+.title-select span {
+  margin: 0 10px;
+  width: 100px;
+  font-size: 80%;
+  font-weight: normal;
+  text-shadow: 0 0 8px #000000;
+}
+
+.title-select select {
+  all: unset;
+  position: absolute;
+  right: 10px;
+  display: inline-block;
+  width: 300px;
+  border-radius: 100px;
+  background: #ffffff30;
+  text-align-last: center;
+  text-shadow: 0 0 8px #000000;
+}
+
+.wooden-box {
+  margin: 10px;
+  padding: 10px;
+  width: 400px;
+  border: thin solid white;
+  border-radius: 100px;
+  background-image: url("resources/pocket_corner.png");
+  background-size: cover;
+  color: #333333;
+  text-align-last: center;
+  text-shadow: none;
+  box-shadow: 0 0px 10px 0 #000000;
+}
+
+.version {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-weight: normal;
+  color: #ffffff88;
+}
+
+.game-wrapper {
+  
+}
+
+.canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.stone {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.stone img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  box-shadow: 0 0px 5px 0 #00000088;
+}
+
+.pocket-number {
+  z-index: 1000000000;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  -webkit-text-stroke: 3px white;
+  text-stroke: 3px white;
+  paint-order: stroke;
+}
+
+@keyframes kokomade-fade {
+	0% {
+		opacity: 0.3;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.kokomade {
+  position: absolute;
+  padding: 5px;
+  min-width: 70px;
+  border-radius: 10px;
+  transform: translate(-50%, -50%);
+  background: #00000088;
+  font-size: 15px;
+  color: #f0f0f0;
+  text-align: center;
+  animation: kokomade-fade 1s ease-in-out infinite alternate;
+}
+
+.happen-message-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40%;
+  height: 8%;
+  border: 2px solid;
+  outline: thin solid white;
+  border-radius: 10px;
+  font-size: 80%;
+  background: #ffffffaa;
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  box-shadow: 0 0px 10px 0 #00000088;
+  animation: happen-fade 1s ease-in-out infinite alternate;
+}
+
+.happen-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  text-shadow: 0 0 5px #ffffff;
+}
+
+.present {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 150px;
+  height: 40px;
+  border-bottom: 3px solid;
+  border-radius: 5px;
+  background: #eeeeee;
+  box-shadow: 0 0px 25px 0 #00000088;
+  outline: thin solid white;
+}
+
+.present-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 0 5px;
+  border-radius: 4px;
+}
+
+.present-label {
+  
+}
+
+.pass {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 5px;
+  background: #ffffffaa;
+  box-shadow: 0 0px 25px 0 #00000088;
+  outline: thin solid white;
+}
+
+.game-options {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 20px;
+  font-size: 15px;
+  color: #f0f0f0;
+  background: #00000055;
+}
+
+.game-options div * {
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #00000060;
+}
+
+.event-popup-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 15px;
+  transform-origin: 50% 50%;
+  color: #f0f0f0;
+  font-weight: 600;
+  text-shadow: 0 0 5px #000000;
+}
+
+.event-popup-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.event-popup-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background: red;
+  box-shadow: 0 0 15px 0 #00000088;
+}
+
+.event-popup-label {
+  font-weight: 800;
+  font-size: 50px;
+  text-shadow: 0 0 15px #00000088;
+}
+
+.ranking {
+  background: #000000aa;
+}
+
+.ranking-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  height: 100%;
+  color: #f0f0f0;
+  text-shadow: 0 0 20px #000000;
+}
+
+.ranking-header {
+  width: 500px;
+  font-size: 30px;
+  text-align: center;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.ranking-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 500px;
+}
+
+.ranking-crown {
+  width: 60px;
+  font: 50px Material Symbols Outlined;
+}
+
+.ranking-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: red;
+}
+
+.ranking-label {
+  font-size: 40px;
+}
+
+.ranking-points {
+  font-size: 30px;
+  width: 100px;
+  text-align: right;
+}
+
+.ranking-points::after {
+  font-size: 20px;
+  color: #aaaaaa;
+  content: 'pt';
+}
