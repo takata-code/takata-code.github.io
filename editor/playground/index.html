@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="index.js" type="module"></script>
+  </head>
+  <body class="main-wrapper">
+    <div id="webpageWrapper" class="webpage-wrapper">
+      <iframe src="" id="webpageFrame" class="webpage-frame"></iframe>
+    </div>
+    <div id="inspectorWrapper" class="inspector-wrapper">
+      <div id="inspectorResizeKnob" class="inspector-resize-knob"></div>
+      <div class="inspector">
+        <div id="inspectorTabHeaders">
+          <div class="inspector-tab-header">コンソール</div>
+        </div>
+        <div id="inspectorTabContents" class="inspector-tabs">
+          <div class="inspector-tab">
+            <div class="inspector-tab-content inspector-console">
+              <div class="inspector-console-toolbar">
+                <div id="inspectorConsoleClear">Clear All</div>
+              </div>
+              <div id="inspectorConsoleRows" class="inspector-console-rows"></div>
+              <div class="inspector-console-input-box">
+                <input id="inspectorConsoleInput" type="text" placeholder="JavaScript コマンドを入力..." class="inspector-console-input">
+              </div>
+            </div>
+          </div>
+          <div class="inspector-tab">
+            <div class="inspector-tab-content">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
