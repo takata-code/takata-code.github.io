@@ -3,12 +3,16 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src="index.js" type="module"></script>
   </head>
   <body class="main-wrapper">
     <div id="webpageWrapper" class="webpage-wrapper">
-      <iframe src="" id="webpageFrame" class="webpage-frame"></iframe>
+      <div id="webpageFrameWrapper" class="webpage-frame-wrapper">
+        <iframe class="webpage-frame" src="about:blank"></iframe>
+      </div>
+      <div class="webpage-frame-overlay"></div>
     </div>
     <div id="inspectorWrapper" class="inspector-wrapper">
       <div id="inspectorResizeKnob" class="inspector-resize-knob"></div>
