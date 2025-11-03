@@ -35,10 +35,9 @@
 
   <div class="main-container">
     <div class="menu">
-      <span class="menu-element">
-        <span id="menuWelcome" class="menu-icon">home</span>
+      <span class="menu-element" style="width: 25px; aspect-ratio: 1">
+        <span id="menuWelcome" class="menu-icon" style="height: 100%; aspect-ratio: 1; background-image: url(logo256.png); background-size: contain"></span>
       </span>
-      <span class="menu-line"></span>
       <span class="menu-element">
         <span id="menuUndo" class="menu-icon">undo</span>
       </span>
@@ -85,7 +84,9 @@
     </div>
 
     <div id="tabHeaders" class="tab-headers"></div>
-    <div id="tabContentContainer" class="tab-content-container"></div>
+    <div id="tabContentContainer" class="tab-content-container">
+      <div class="tab-content-empty"></div>
+    </div>
 
     <div class="explorer-container">
       <div id="explorerFold" class="explorer-fold">
@@ -153,7 +154,7 @@
       </div>
       <div style="margin: 30px">
         <div id="welcomeDialogOpenLast">
-          <button style="width: 400px; height: 60px; border-left: 10px solid var(--main-color-ll)">
+          <button style="width: 450px; height: 60px; border-left: 10px solid var(--main-color-ll)">
             <p id="welcomeDialogOpenLastTitle"></p>
             <div>
               最後に開いたプロジェクトを開きます。
@@ -161,7 +162,7 @@
           </button>
         </div>
         <div>
-          <button id="welcomeDialogNew" style="width: 400px; height: 60px; border-left: 10px solid var(--main-color-l)">
+          <button id="welcomeDialogNew" style="width: 450px; height: 60px; border-left: 10px solid var(--main-color-l)">
             <p>新しいプロジェクトを作成</p>
             <div>
               空のプロジェクトを作成するか、<br>テンプレートから開始します。
@@ -169,7 +170,7 @@
           </button>
         </div>
         <div>
-          <button id="welcomeDialogOpen" style="width: 400px; height: 60px; border-left: 10px solid var(--main-color)">
+          <button id="welcomeDialogOpen" style="width: 450px; height: 60px; border-left: 10px solid var(--main-color)">
             <p>プロジェクトを開く</p>
             <div>
               既存のプロジェクトを開きます。
