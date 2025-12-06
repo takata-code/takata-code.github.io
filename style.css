@@ -53,17 +53,27 @@ body {
   box-shadow: 0 0 20px 0 #00000088;
 }
 
-.project-chart {
-  background: linear-gradient(to bottom right, #008803, #1d521e);
+.project-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+.project-row img {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.project-column {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
 }
 
 .project-title {
   font-size: 40px;
   font-weight: bold;
-}
-
-.project-description {
-  margin: 20px;
 }
 
 .project-button {
@@ -74,6 +84,7 @@ body {
   border-radius: 25px;
   background: var(--main-color-dd);
   font-weight: bold;
+  text-align: center;
   color: var(--text-color-white);
 }
 
@@ -87,6 +98,7 @@ body {
   max-height: 200px;
   border: thin solid var(--main-color-dd);
   border-radius: 15px;
+  overflow: hidden;
 }
 
 .about-editor {
