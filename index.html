@@ -1,43 +1,60 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Takaon.net</title>
-    <meta name="description" content="ブラウザで Takaon Editor を使用すれば、ソースファイルの編集、JavaScriptの実行などができます。">
-    <meta charset="utf-8">
-  
-    <!-- TypeSquare -->
-    <script type="text/javascript" src="//typesquare.com/3/tsst/script/ja/typesquare.js?67eea17b0f7440308f1539a4ac1e02e5" charset="utf-8"></script>
-    <!-- End TypeSquare -->
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="default.css">
-    <link rel="stylesheet" href="style.css">
-    
-    <script src="index.js" type="module"></script>
-  </head>
-  <body>
-    <div class="header">
-      <span class="header-title">
-        <span style="color: var(--main-color); font-weight: bold">T</span>akaon<span style="color: var(--text-color); font-size:1.5em">.</span><span style="color: gray">net</span>
-      </span>
-    </div>
-    <div class="content">
-      <div class="project project-editor">
-        <img src="editor.png" class="project-editor-image">
-        <div class="project-row">
-          <img src="logo.png">
-          <div class="project-column">
-            <div class="project-title">Takaon <span style="font-weight: normal">Editor</span></div>
-            <button id="projectEditorGetStarted" class="project-button">コードを書き始める</button>
-          </div>
+<head>
+  <title>Takaon.net</title>
+  <meta name="description" content="ブラウザで Takaon Editor を使用すれば、ソースファイルの編集、JavaScriptの実行などができます。">
+  <meta charset="utf-8">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DHLG6X72J6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-DHLG6X72J6');
+  </script>
+
+  <!-- TypeSquare -->
+  <script type="text/javascript" src="//typesquare.com/3/tsst/script/ja/typesquare.js?67eea17b0f7440308f1539a4ac1e02e5"
+    charset="utf-8"></script>
+  <!-- End TypeSquare -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="default.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="index.js" type="module"></script>
+</head>
+
+<body>
+  <div class="header">
+    <span class="header-title">
+      <span style="color: var(--main-color); font-weight: bold">T</span>akaon<span
+        style="color: var(--text-color); font-size:1.5em">.</span><span style="color: gray">net</span>
+    </span>
+  </div>
+  <div class="content">
+    <div class="project project-editor">
+      <img src="editor.png" class="project-editor-image">
+      <div class="project-row">
+        <img src="logo.png">
+        <div class="project-column">
+          <div class="project-title">Takaon <span style="font-weight: normal">Editor</span></div>
+          <button id="projectEditorGetStarted" class="project-button">コードを書き始める</button>
         </div>
       </div>
     </div>
-    <div class="footer">
-      <span>Takaon.net</span>
-    </div>
-  </body>
+  </div>
+  <div class="footer">
+    <span>Takaon.net</span>
+  </div>
+</body>
+
 </html>
