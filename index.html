@@ -1,60 +1,417 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="ja">
 <head>
-  <title>Takaon.net</title>
-  <meta name="description" content="ブラウザで Takaon Editor を使用すれば、ソースファイルの編集、JavaScriptの実行などができます。">
   <meta charset="utf-8">
+  <title>Takaon Editor</title>
+  <meta name="viewport" content="initial-scale=1.0, width=device-width">
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-DHLG6X72J6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
+    function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
+    
     gtag('config', 'G-DHLG6X72J6');
   </script>
+  
+  <link rel="icon" type="image/png" sizes="32x32" href="logo32.png">
+  <link rel="icon" type="image/png" sizes="256x256" href="logo256.png">
+  <link rel="icon" type="image/png" href="logo.png">
 
-  <!-- TypeSquare -->
-  <script type="text/javascript" src="//typesquare.com/3/tsst/script/ja/typesquare.js?67eea17b0f7440308f1539a4ac1e02e5"
-    charset="utf-8"></script>
-  <!-- End TypeSquare -->
-
+  <!-- Google Fonts and Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic&family=JetBrains+Mono&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-  <link rel="stylesheet" href="default.css">
+  <!-- TypeSquare -->
+  <script type="text/javascript" src="//typesquare.com/3/tsst/script/ja/typesquare.js?67eea17b0f7440308f1539a4ac1e02e5" charset="utf-8"></script>
+
+  <link rel="stylesheet" href="https://takaon.net/default.css">
   <link rel="stylesheet" href="style.css">
 
   <script src="index.js" type="module"></script>
 </head>
 
 <body>
-  <div class="header">
-    <span class="header-title">
-      <span style="color: var(--main-color); font-weight: bold">T</span>akaon<span
-        style="color: var(--text-color); font-size:1.5em">.</span><span style="color: gray">net</span>
-    </span>
-  </div>
-  <div class="content">
-    <div class="project project-editor">
-      <img src="editor.png" class="project-editor-image">
-      <div class="project-row">
-        <img src="logo.png">
-        <div class="project-column">
-          <div class="project-title">Takaon <span style="font-weight: normal">Editor</span></div>
-          <button id="projectEditorGetStarted" class="project-button">コードを書き始める</button>
+  <!-- JSZip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- End JSZip -->
+
+  <!-- Ace editor -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ext-language_tools.js"></script>
+
+  <div class="main-container">
+    <div class="menu">
+      <span class="menu-element" style="width: 25px; aspect-ratio: 1">
+        <span id="menuWelcome" class="menu-icon" style="height: 100%; aspect-ratio: 1; background-image: url(logo256.png); background-size: contain"></span>
+      </span>
+      <span class="menu-element">
+        <span id="menuUndo" class="menu-icon">undo</span>
+      </span>
+      <span class="menu-element">
+        <span id="menuRedo" class="menu-icon">redo</span>
+      </span>
+      <span class="menu-line"></span>
+      <span id="menuSave" class="menu-element">
+        <span class="menu-icon">save</span>
+        <span class="menu-text">保存</span>
+      </span>
+      <span class="menu-line"></span>
+      <span id="menuLoad" class="menu-element">
+        <span class="menu-icon">input</span>
+        <span class="menu-text">ロード...</span>
+      </span>
+      <span class="menu-line"></span>
+      <span id="menuDownload" class="menu-element">
+        <span class="menu-icon">download</span>
+        <span class="menu-text">ダウンロード...</span>
+      </span>
+      <span class="menu-line"></span>
+      <span id="menuProject" class="menu-element">
+        <span class="menu-icon">folder_code</span>
+        <span class="menu-text">プロジェクト</span>
+      </span>
+      <span class="menu-line"></span>
+      <span id="menuRun" class="menu-element">
+        <span class="menu-icon" style="color: #1cad47">flag</span>
+        <span class="menu-text">実行</span>
+      </span>
+      <!-- <span class="menu-element">
+        <span class="menu-icon" style="color: #30a4fc; margin: 0">bug_report</span>
+        <span class="menu-text">
+          <input id="menuInspector" type="checkbox" checked>
+          <label for="menuInspector">デバッグ</label>
+        </span>
+      </span> -->
+      <span class="menu-line"></span>
+      <span id="menuTools" class="menu-element">
+        <span class="menu-icon">palette</span>
+        <span class="menu-text">ツール...</span>
+      </span>
+    </div>
+
+    <div id="tabHeaders" class="tab-headers"></div>
+    <div id="tabContentContainer" class="tab-content-container">
+      <div class="tab-content-empty"></div>
+    </div>
+
+    <div class="explorer-container">
+      <div id="explorerFold" class="explorer-fold">
+        <span id="explorerFoldIcon" class="explorer-fold-icon">park</span>
+      </div>
+      <p>ファイルビュー</p>
+      <div id="explorer" class="explorer">
+
+      </div>
+      <div class="explorer-menu">
+        <div id="addItem">
+          <span>add_circle</span>新しいアイテムを追加...
         </div>
       </div>
     </div>
+    <div id="footer" class="footer">
+      <div id="footerFold" class="footer-fold">
+        <span id="footerFoldIcon" class="footer-fold-icon">tooltip</span>
+      </div>
+      <div id="footerIndicator" class="footer-indicator">
+        <div class="footer-indicator-annotations">
+          <span id="footerIndicatorErrorsIcon" class="footer-indicator-icon">cancel</span>
+          <span id="footerIndicatorErrorsText" class="footer-indicator-text">0</span>
+          <span id="footerIndicatorWarningsIcon" class="footer-indicator-icon">warning</span>
+          <span id="footerIndicatorWarningsText" class="footer-indicator-text">0</span>
+          <span id="footerIndicatorInfosIcon" class="footer-indicator-icon">info</span>
+          <span id="footerIndicatorInfosText" class="footer-indicator-text">0</span>
+        </div>
+        <div class="footer-indicator-unsaved">
+          <span id="footerIndicatorUnsavedIcon" class="footer-indicator-icon">check_circle</span>
+          <span id="footerIndicatorUnsavedText" class="footer-indicator-text">すべて保存済み</span>
+          <div style="margin: 0 10px; width: 2px; height: 30px; background-color: var(--base-color-ll)"></div>
+          <input id="autosaveCheckbox" type="checkbox" checked>
+          <label for="autosaveCheckbox" checked>自動保存</label>
+        </div>
+      </div>
+      <div id="footerAnnotations" class="footer-annotations"></div>
+    </div>
   </div>
-  <div class="footer">
-    <span>Takaon.net</span>
-  </div>
+  <dialog id="welcomeDialog" class="dialog" style="width: 1000px; border: 2px solid var(--main-color-dd);">
+    <div class="dialog-content" style="margin: 0">
+      <style>
+.welcome-dialog-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100px;
+  padding: 0 30px;
+  background-image: linear-gradient( -60deg,
+    var(--main-color) 33%, var(--main-color-d) 33%,
+    var(--main-color-d) 67%, var(--main-color-dd) 67%,
+    var(--main-color-dd)
+  );
+  background-size: 100% 100%;
+}
+
+.welcome-dialog-title {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+      </style>
+      <div class="welcome-dialog-header">
+        <div class="welcome-dialog-title">Takaon Editor</div>
+      </div>
+      <div style="margin: 30px">
+        <div id="welcomeDialogOpenLast">
+          <button style="width: 450px; height: 80px; border-left: 10px solid var(--main-color-ll)">
+            <p id="welcomeDialogOpenLastTitle"></p>
+            <div>
+              最後に開いたプロジェクトを開きます。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button id="welcomeDialogNew" style="width: 450px; height: 80px; border-left: 10px solid var(--main-color-l)">
+            <p>新しいプロジェクトを作成</p>
+            <div>
+              空のプロジェクトを作成するか、<br>テンプレートから開始します。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button id="welcomeDialogOpen" style="width: 450px; height: 80px; border-left: 10px solid var(--main-color)">
+            <p>プロジェクトを開く</p>
+            <div>
+              既存のプロジェクトを開きます。
+            </div>
+          </button>
+        </div>
+        <p style="color: gray; text-align: right">Takaon Editor Beta<br>2025/11/02</p>
+      </div>
+      <div class="dialog-footer">
+        <button id="welcomeDialogClose">閉じる</button>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="newProjectDialog" class="dialog">
+    <div class="dialog-content">
+      <p class="dialog-title">新しいプロジェクトを作成</p>
+      <p>テンプレートを選択:</p>
+      <div id="newProjectDialogTempletes">
+        <div>
+          <button style="width: 400px; height: 80px">
+            <p>HTML, CSS JavaScriptセット</p>
+            <div>
+              ページを構築可能な、最小限のテキストファイルのセットです。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button style="width: 400px; height: 80px">
+            <p>キャンバス描画セット</p>
+            <div>
+              HTMLの&lt;canvas&gt;要素とJavaScriptを用いて動的なグラフィックを作成します。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button style="width: 400px; height: 80px">
+            <p>空のプロジェクト</p>
+            <div>
+              空のフォルダからスタートします。
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button id="newProjectDialogCancel">キャンセル</button>
+    </div>
+  </dialog>
+  
+  <!-- load dialog -->
+  <dialog id="menuLoadDialog" class="dialog">
+    <div class="dialog-content">
+      <p class="dialog-title">プロジェクトをロード</p>
+      <div>
+        <div>
+          <button id="menuLoadDialogText" style="width: 400px; height: 80px">
+            <p>プロジェクトデータテキスト</p>
+            <div>
+              プロジェクトが文字列にエンコードされた形式です。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button id="menuLoadDialogZip" style="width: 400px; height: 80px">
+            <p>ZIP アーカイブ</p>
+            <div>
+              汎用的なアーカイブ形式です。
+            </div>
+          </button>
+          <input id="menuLoadDialogZipInput" type="file" hidden>
+          <label id="menuLoadDialogZipLabel" for="menuLoadDialogZipInput" hidden></label>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button id="menuLoadDialogCancel">キャンセル</button>
+    </div>
+  </dialog>
+
+  <!-- download dialog -->
+  <dialog id="menuDownloadDialog" class="dialog">
+    <div class="dialog-content">
+      <p class="dialog-title">プロジェクトをダウンロード</p>
+      <input id="projectSettingsIncludeCheckbox" type="checkbox" checked>
+      <label for="projectSettingsIncludeCheckbox">プロジェクト情報ファイルを含める</label>
+      <div id="projectSettingsIncludeMessage" class="message-info" hidden>
+        プロジェクト情報ファイル(TPROJECT)を削除すると、<br>プロジェクト名、ID、バージョンなどのデータは消えてしまいます。</div>
+      <br>
+      <br><br>
+      <button id="menuDownloadDialogZip" style="width: 400px; height: 80px">
+        <p>ZIP アーカイブ</p>
+        <div>
+          汎用的なアーカイブ形式です
+        </div>
+      </button>
+      <br>
+      <button id="menuDownloadDialogText" style="width: 400px; height: 80px">
+        <p>プロジェクトテキスト</p>
+        <div>
+          プロジェクトが文字列にエンコードされた形式です
+        </div>
+      </button>
+    </div>
+    <div class="dialog-footer">
+      <button id="menuDownloadDialogCancel">キャンセル</button>
+    </div>
+  </dialog>
+
+  <dialog id="folderDetailDialog" class="dialog">
+    <div class="dialog-content">
+      <p class="dialog-title">フォルダ <span id="folderDetailDialogPath"></span> の操作</p>
+      <div>
+        <button id="folderDetailDialogRename">名前の変更</button><br>
+        <button id="folderDetailDialogDelete">このフォルダの削除</button>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button id="folderDetailDialogCancel">キャンセル</button>
+    </div>
+  </dialog>
+  <dialog id="fileDetailDialog" class="dialog">
+    <div class="dialog-content">
+      <p class="dialog-title"><span id="fileDetailDialogPath"></span> の操作</p>
+      <div>
+        <button id="fileDetailDialogRename">名前の変更</button><br>
+        <button id="fileDetailDialogDelete">このファイルの削除</button>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button id="fileDetailDialogCancel">キャンセル</button>
+    </div>
+  </dialog>
+  <dialog id="addItemDialog" class="dialog">
+    <div class="dialog-content">
+      <p class="dialog-title">新しいアイテムを追加</p>
+      <div>
+        <div>
+          <button id="addItemDialogFolder" style="width: 400px; height: 80px">
+            <p>新しいフォルダを追加</p>
+            <div>
+              空のフォルダを作成します。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button id="addItemDialogNewFile" style="width: 400px; height: 80px">
+            <p>新しいテキストファイルを作成</p>
+            <div>
+              HTML, CSS, JavaScriptやプレーンテキストなどのテキストファイルを新しく作成します。
+            </div>
+          </button>
+        </div>
+        <div>
+          <button id="addItemDialogLoadFile" style="width: 400px; height: 80px">
+            <p>既存のファイルを追加</p>
+            <div>
+              ローカルのファイルを取り込みます。<br>
+              <span id="addItemDialogLoadFileDetails"></span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button id="addItemDialogCancel">キャンセル</button>
+    </div>
+  </dialog>
+
+  <!-- Webフォントのための必要な文字を設定 -->
+  <span hidden>
+    あいうえお
+    かきくけこ
+    さしすせそ
+    たちつてと
+    なにぬねの
+    はひふへほ
+    まみむめも
+    やゆよ
+    らりるれろ
+    わゐゑを
+    ん
+
+    がぎぐげご
+    ざじずぜぞ
+    だぢづでど
+    ばびぶべぼ
+    ぱぴぷぺぽ
+
+    ぁぃぅぇぉ
+    っ
+    ゃゅょ
+
+    アイウエオ
+    カキクケコ
+    サシスセソ
+    タチツテト
+    ナニヌネノ
+    ハヒフヘホ
+    マミムメモ
+    ヤユヨ
+    ラリルレロ
+    ワヰヱヲ
+    ン
+
+    ガギグゲゴ
+    ザジズゼゾ
+    ダヂヅデド
+    バビブベボ
+    パピプペポ
+
+    ァィゥェォ
+    ッ
+    ャュョ
+
+    ヴ
+
+    、。ー～「」【】『』゛゜
+    ♪♭■□◆◇△▲▽▼◎○●◯‥…・∴∵※×〒
+    !”#$%&'()=~|`{+*}&lt;&gt;?_-^\@[;:],./\
+    ！”＃＄％＆’（）＝~｜｀｛＋＊｝＜＞？＿－＾\＠［；：］，．／\
+
+    abcdefghijklmnopqrstuvwxyz
+    ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+    0123456789
+
+    ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ
+    ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ
+
+    ０１２３４５６７８９
+  </span>
 </body>
 
 </html>
