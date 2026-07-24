@@ -46,7 +46,7 @@
   <div class="main-container">
     <div class="menu">
       <span class="menu-element" style="width: 25px; aspect-ratio: 1">
-        <span id="menuWelcome" class="menu-icon" style="height: 100%; aspect-ratio: 1; background-image: url(logo256.png); background-size: contain"></span>
+        <span id="menuWelcome" class="menu-icon">home</span>
       </span>
       <span class="menu-element">
         <span id="menuUndo" class="menu-icon">undo</span>
@@ -79,13 +79,6 @@
         <span class="menu-icon" style="color: #1cad47">flag</span>
         <span class="menu-text">実行</span>
       </span>
-      <!-- <span class="menu-element">
-        <span class="menu-icon" style="color: #30a4fc; margin: 0">bug_report</span>
-        <span class="menu-text">
-          <input id="menuInspector" type="checkbox" checked>
-          <label for="menuInspector">デバッグ</label>
-        </span>
-      </span> -->
       <span class="menu-line"></span>
       <span id="menuTools" class="menu-element">
         <span class="menu-icon">palette</span>
@@ -128,7 +121,7 @@
         <div class="footer-indicator-unsaved">
           <span id="footerIndicatorUnsavedIcon" class="footer-indicator-icon">check_circle</span>
           <span id="footerIndicatorUnsavedText" class="footer-indicator-text">すべて保存済み</span>
-          <div style="margin: 0 10px; width: 2px; height: 30px; background-color: var(--base-color-ll)"></div>
+          <div style="margin: 0 10px; width: 2px; height: 30px; background-color: var(--base-color-l)"></div>
           <input id="autosaveCheckbox" type="checkbox" checked>
           <label for="autosaveCheckbox" checked>自動保存</label>
         </div>
@@ -138,27 +131,6 @@
   </div>
   <dialog id="welcomeDialog" class="dialog" style="width: 1000px; border: 2px solid var(--main-color-dd);">
     <div class="dialog-content" style="margin: 0">
-      <style>
-.welcome-dialog-header {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 100px;
-  padding: 0 30px;
-  background-image: linear-gradient( -60deg,
-    var(--main-color) 33%, var(--main-color-d) 33%,
-    var(--main-color-d) 67%, var(--main-color-dd) 67%,
-    var(--main-color-dd)
-  );
-  background-size: 100% 100%;
-}
-
-.welcome-dialog-title {
-  font-size: 30px;
-  font-weight: bold;
-}
-
-      </style>
       <div class="welcome-dialog-header">
         <div class="welcome-dialog-title">Takaon Editor</div>
       </div>
@@ -229,7 +201,6 @@
       <button id="newProjectDialogCancel">キャンセル</button>
     </div>
   </dialog>
-  
   <!-- load dialog -->
   <dialog id="menuLoadDialog" class="dialog">
     <div class="dialog-content">
@@ -259,7 +230,6 @@
       <button id="menuLoadDialogCancel">キャンセル</button>
     </div>
   </dialog>
-
   <!-- download dialog -->
   <dialog id="menuDownloadDialog" class="dialog">
     <div class="dialog-content">
@@ -288,7 +258,6 @@
       <button id="menuDownloadDialogCancel">キャンセル</button>
     </div>
   </dialog>
-
   <dialog id="folderDetailDialog" class="dialog">
     <div class="dialog-content">
       <p class="dialog-title">フォルダ <span id="folderDetailDialogPath"></span> の操作</p>
@@ -348,6 +317,13 @@
       <button id="addItemDialogCancel">キャンセル</button>
     </div>
   </dialog>
+  <div id="startupOverlay" class="startup-overlay" popover="manual">
+    <div id="startupOverlayBackground" class="startup-overlay-background">
+    </div>
+    <div id="startupOverlayLogo" class="startup-overlay-logo">
+      <img src="logo.png">
+    </div>
+  </div>
 
   <!-- Webフォントのための必要な文字を設定 -->
   <span hidden>
